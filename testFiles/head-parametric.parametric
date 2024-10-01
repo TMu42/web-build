@@ -1,5 +1,5 @@
 ::PARAMETRIC;
-:PARAM:TITLE::Parmetric HTML;
+::PARAM:TITLE::Parmetric HTML;
   <head>
     <title><[TITLE]></title>
   </head>

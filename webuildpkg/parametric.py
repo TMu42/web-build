@@ -60,7 +60,7 @@ def parse_parametric(infile, outfile, params={}):
     except shared.ParseError as e:
         traceback.print_exception(e)
         
-        outfile.write(line)
+        outfile.write(_parse_parametric_line(line, params=params))
     else:
         if (not command[1:]) or command[1] != shared.PARAMETRIC_ID:
             traceback.print_exception(
@@ -68,12 +68,32 @@ def parse_parametric(infile, outfile, params={}):
                             f"Invalid parametric file declaration.",
                             (infile.name, line_no, 1, line.strip())))
             
-            outfile.write(line)
+            outfile.write(_parse_parametric_line(line, params=params))
     
     while (line := infile.readline()):
         line_no += 1
         
-        outfile.write(line)
+        try:
+            command = shared.parse_command(
+                        line, file_name=infile.name, line_no=line_no)[1:-1]
+        except shared.ParseError:
+            outfile.write(_parse_parametric_line(line, params=params))
+        else:
+            if command[4:] and command[0] == "" and command[1] == "PARAM":
+                if command[2] not in params.keys():
+                    params[command[2]] = command[4]
+    
+#    print(params, file=sys.stderr)
+
+
+def _parse_parametric_line(line, params):
+    angle_op, square_op, escape = False, False, False
+    angle_cl, square_cl         = False, False
+    
+    for c in line:
+        
+    
+    return line
 
 
 if __name__ == "__main__":
