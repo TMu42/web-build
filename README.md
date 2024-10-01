@@ -4,7 +4,7 @@
 
     build.py TEMPLATE_FILE [OUTPUT_FILE]
 
-## Parameters
+### Parameters
 
     TEMPLATE_FILE   -   the template from which to produce output file (see
                         syntax below).

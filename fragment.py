@@ -2,8 +2,14 @@ import traceback
 import sys
 
 
+STDIOS = ['-', '']
+
+FRAGMENT_ID = "FRAGMENT"
+
+FRAGMENT_EXTS = ["", ".fragment", ".frag"]
+
+
 class ParseError(SyntaxError): pass
-class ParseWarning(SyntaxWarning): pass
 
 
 def main(args):
@@ -14,7 +20,7 @@ def main(args):
         outfile = sys.stdout
     else:
         try:
-            outfile = open_out(args[2])
+            outfile = open_output(args[2])
         except IndexError:
             outfile = sys.stdout
     
@@ -24,23 +30,24 @@ def main(args):
 
 
 def open_fragment(name):
-    if name in ['-', '']:
+    if name in STDIOS:
         return sys.stdin
     
-    for file_name in [name, name + ".fragment", name + ".frag"]:
+    for ext in FRAGMENT_EXTS:
         try:
-            f = open(file_name, 'r')
+            f = open(name + ext, 'r')
         except (FileNotFoundError, IsADirectoryError):
             pass
         else:
             return f
     
     raise FileNotFoundError(
-            f"No such file: {name}[.frag[ment]]")
+        f"Not any such file, tried: "
+        f"'{'\', \''.join([name + ext for ext in FRAGMENT_EXTS])}'.")
 
 
-def open_out(name):
-    if name in ['-', '']:
+def open_output(name):
+    if name in STDIOS:
         return sys.stdout
     
     return open(name, 'w')
@@ -64,7 +71,7 @@ def parse_fragment(infile, outfile):
         
         outfile.write(line)
     else:
-        if (not command[1:]) or command[1] != "FRAGMENT":
+        if (not command[1:]) or command[1] != FRAGMENT_ID:
             traceback.print_exception(
                         ParseError(
                             f"Invalid fragment file declaration.",
@@ -113,27 +120,6 @@ def parse_command(line, file_name="", line_no=0):
                          (file_name, line_no, len(line.strip()), line.strip()))
     
     return command
-    
-    try:
-        command, comment = tuple(line.split(';', 1))
-    except ValueError:
-        raise ParseError(
-                f"Command terminator ';' missing.",
-                (file_name, line_no, len(line.strip()), line.strip()))
-    
-    command = command.split(':')
-    
-    if len(command) == 1:
-        raise ParseError(
-                f"Command initiator ':' missing.",
-                (file_name, line_no, 1, line.strip()))
-    
-    if command[0].strip():
-        raise ParseError(
-                f"Non whitespace character preceeding command initiator ':'.",
-                (file_name, line_no, line.strip().index(':'), line.strip()))
-    
-    return command + [comment]
 
 
 if __name__ == "__main__":
