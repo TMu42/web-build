@@ -1,0 +1,6 @@
+::FRAGMENT;
+  <body bgcolor=blue>
+    <h1>Fragment HTML</h1>
+    
+    <p>Testing reconstruction from fragmented template...</p>
+  </body>

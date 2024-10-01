@@ -1,0 +1,8 @@
+::TEMPLATE;
+<!DOCTYPE html>
+
+<html>
+  :PARAMETRIC:head-parametric:TITLE=Parametric HTML;
+  
+  :PARAMETRIC:body-parametric:BG_COL=red:TITLE=Parametric HTML:DESCRIPT=parameterized template;
+</html>

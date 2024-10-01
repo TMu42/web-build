@@ -1,0 +1,9 @@
+::PARAMETRIC;
+:PARAM:BG_COL::scarlet;
+:PARAM:TITLE::Parmetric HTML;
+:PARAM:DESCRIPT::parameterised template;
+  <body bgcolor=<[BG_COL]>>
+    <h1><[TITLE]></h1>
+    
+    <p>Testing reconstruction from <[DESCRIPT]>...</p>
+  </body>
