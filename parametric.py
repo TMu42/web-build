@@ -1,6 +1,8 @@
 import traceback
 import sys
 
+from . import shared
+
 
 STDIOS = ['-', '']
 
