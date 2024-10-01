@@ -7,6 +7,9 @@ except ImportError:
     import shared
 
 
+FRAGMENT_EXTS = ["", ".fragment", ".frag"]
+
+
 def main(args):
     try:
         infile = open_fragment(args[1])
@@ -28,7 +31,7 @@ def open_fragment(name):
     if name in shared.STDIOS:
         return sys.stdin
     
-    for ext in shared.FRAGMENT_EXTS:
+    for ext in FRAGMENT_EXTS:
         try:
             f = open(name + ext, 'r')
         except (FileNotFoundError, IsADirectoryError):
@@ -38,7 +41,7 @@ def open_fragment(name):
     
     raise FileNotFoundError(
         f"Not any such file, tried: "
-        f"'{'\', \''.join([name + ext for ext in shared.FRAGMENT_EXTS])}'.")
+        f"'{'\', \''.join([name + ext for ext in FRAGMENT_EXTS])}'.")
 
 
 def parse_fragment(infile, outfile):

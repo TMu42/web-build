@@ -7,9 +7,12 @@ except ImportError:
     import shared
 
 
+PARAMETRIC_EXTS = ["", ".parametric", ".param"]
+
+
 def main(args):
     try:
-        infile = open_fragment(args[1])
+        infile = open_parametric(args[1])
     except IndexError:
         infile  = sys.stdin
         outfile = sys.stdout
@@ -19,16 +22,16 @@ def main(args):
         except IndexError:
             outfile = sys.stdout
     
-    parse_fragment(infile, outfile)
+    parse_parametric(infile, outfile, params={})
     
     return 0
 
 
-def open_fragment(name):
+def open_parametric(name):
     if name in shared.STDIOS:
         return sys.stdin
     
-    for ext in shared.FRAGMENT_EXTS:
+    for ext in PARAMETRIC_EXTS:
         try:
             f = open(name + ext, 'r')
         except (FileNotFoundError, IsADirectoryError):
@@ -38,10 +41,10 @@ def open_fragment(name):
     
     raise FileNotFoundError(
         f"Not any such file, tried: "
-        f"'{'\', \''.join([name + ext for ext in shared.FRAGMENT_EXTS])}'.")
+        f"'{'\', \''.join([name + ext for ext in PARAMETRIC_EXTS])}'.")
 
 
-def parse_fragment(infile, outfile):
+def parse_parametric(infile, outfile, params={}):
     line_no = 0
     
     if (line := infile.readline()) and line[0] == '#':
@@ -59,10 +62,10 @@ def parse_fragment(infile, outfile):
         
         outfile.write(line)
     else:
-        if (not command[1:]) or command[1] != shared.FRAGMENT_ID:
+        if (not command[1:]) or command[1] != shared.PARAMETRIC_ID:
             traceback.print_exception(
                         shared.ParseError(
-                            f"Invalid fragment file declaration.",
+                            f"Invalid parametric file declaration.",
                             (infile.name, line_no, 1, line.strip())))
             
             outfile.write(line)

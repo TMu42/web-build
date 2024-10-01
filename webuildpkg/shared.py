@@ -3,9 +3,8 @@ import sys
 
 STDIOS = ['-', '']
 
-FRAGMENT_ID = "FRAGMENT"
-
-FRAGMENT_EXTS = ["", ".fragment", ".frag"]
+FRAGMENT_ID   = "FRAGMENT"
+PARAMETRIC_ID = "PARAMETRIC"
 
 
 class ParseError(SyntaxError): pass
