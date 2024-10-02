@@ -87,13 +87,54 @@ def parse_parametric(infile, outfile, params={}):
 
 
 def _parse_parametric_line(line, params):
-    angle_op, square_op, escape = False, False, False
-    angle_cl, square_cl         = False, False
+    in_macro, transition, escape = False, False, False
+        
+    out_line = ""
+    macro = ""
     
     for c in line:
+        if escape:
+            d = None
+            
+            escape = False
+        elif c == '\\':
+            d = ''
+            
+            escape = True
+        else:
+            d = c
         
+        if d is None:
+            e = c
+        else:
+            e = d
+        
+        if in_macro and transition and d == '>':
+            in_macro, transition = False, False
+            
+            out_line += params[macro]
+        elif in_macro and transition:
+            transition = False
+            
+            macro += (']' + e)
+        elif in_macro and d == ']':
+            transition = True
+        elif in_macro:
+            macro += e
+        elif transition and d == '[':
+            in_macro, transition = True, False
+            
+            macro = ""
+        elif transition:
+            transition = False
+            
+            out_line += ('<' + e)
+        elif d == '<':
+            transition = True
+        else:
+            out_line += e
     
-    return line
+    return out_line
 
 
 if __name__ == "__main__":
