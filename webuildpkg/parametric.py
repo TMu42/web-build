@@ -54,42 +54,36 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
     
     line_no += 1
     
-    try:
-        command = shared.parse_command(
-                    line, file_name=infile.name, line_no=line_no)[1:-1]
-    except shared.ParseError as e:
-        traceback.print_exception(e)
-        
-        outfile.write(
-            _parse_parametric_line(
-                line, params=params, file_name=infile.name, line_no=line_no))
-    else:
-        if (not command[1:]) or command[1] != shared.PARAMETRIC_ID:
-            traceback.print_exception(
-                        shared.ParseError(
-                            f"Invalid parametric file declaration.",
-                            (infile.name, line_no, 1, line.strip())))
-            
-            outfile.write(
-                _parse_parametric_line(line, params=params,
-                                       file_name=infile.name, line_no=line_no))
-    
+    _assert_parametric(shared.parse_command(line, infile.name, line_no),
+                       infile.name, line_no, line)
     while (line := infile.readline()):
         line_no += 1
         
         try:
-            command = shared.parse_command(
-                        line, file_name=infile.name, line_no=line_no)[1:-1]
+            _param(shared.parse_command(line, infile.name, line_no), params) 
         except shared.ParseError:
             outfile.write(
-                _parse_parametric_line(line, params=params,
-                                       file_name=infile.name, line_no=line_no))
-        else:
-            if command[4:] and command[0] == "" and command[1] == "PARAM":
-                if command[2] not in params.keys():
-                    params[command[2]] = command[4]
+                _parse_parametric_line(line, params, infile.name, line_no))
+        except ValueError as e:
+            traceback.print_exception(e)
+
+
+def _param(command, params):
+    cmd = command[1:-1] + ["", "", "", ""]
     
-#    print(params, file=sys.stderr)
+    if cmd[0:2] == ["", "PARAM"]:
+        if cmd[2] not in params.keys():
+            params[cmd[2]] = cmd[4]
+    else:
+        raise ValueError(f"Command {command} is not a parameter declaration.")
+
+
+def _assert_parametric(command, file_name="", line_no=0, line=""):
+    cmd = command[1:-1]
+    
+    if (not cmd[1:]) or cmd[1] != shared.PARAMETRIC_ID:
+        raise shared.ParseError(f"Invalid parametric file declaration.",
+                                (file_name, line_no, 1, line.strip()))
 
 
 def _parse_parametric_line(line, params, file_name="", line_no=0):
