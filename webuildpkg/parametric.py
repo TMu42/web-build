@@ -22,7 +22,9 @@ def main(args):
         except IndexError:
             outfile = sys.stdout
     
-    parse_parametric(infile, outfile, params={})
+    params = _parse_cli_parameters(args[3:])
+    
+    parse_parametric(infile, outfile, params=params)
     
     return 0
 
@@ -44,9 +46,7 @@ def open_parametric(name):
         f"'{'\', \''.join([name + ext for ext in PARAMETRIC_EXTS])}'.")
 
 
-def parse_parametric(infile, outfile, params={}):
-    line_no = 0
-    
+def parse_parametric(infile, outfile, params={}, line_no=0):
     if (line := infile.readline()) and line[0] == '#':
         line = infile.readline()
         
@@ -60,7 +60,9 @@ def parse_parametric(infile, outfile, params={}):
     except shared.ParseError as e:
         traceback.print_exception(e)
         
-        outfile.write(_parse_parametric_line(line, params=params))
+        outfile.write(
+            _parse_parametric_line(
+                line, params=params, file_name=infile.name, line_no=line_no))
     else:
         if (not command[1:]) or command[1] != shared.PARAMETRIC_ID:
             traceback.print_exception(
@@ -68,7 +70,9 @@ def parse_parametric(infile, outfile, params={}):
                             f"Invalid parametric file declaration.",
                             (infile.name, line_no, 1, line.strip())))
             
-            outfile.write(_parse_parametric_line(line, params=params))
+            outfile.write(
+                _parse_parametric_line(line, params=params,
+                                       file_name=infile.name, line_no=line_no))
     
     while (line := infile.readline()):
         line_no += 1
@@ -77,7 +81,9 @@ def parse_parametric(infile, outfile, params={}):
             command = shared.parse_command(
                         line, file_name=infile.name, line_no=line_no)[1:-1]
         except shared.ParseError:
-            outfile.write(_parse_parametric_line(line, params=params))
+            outfile.write(
+                _parse_parametric_line(line, params=params,
+                                       file_name=infile.name, line_no=line_no))
         else:
             if command[4:] and command[0] == "" and command[1] == "PARAM":
                 if command[2] not in params.keys():
@@ -86,55 +92,117 @@ def parse_parametric(infile, outfile, params={}):
 #    print(params, file=sys.stderr)
 
 
-def _parse_parametric_line(line, params):
+def _parse_parametric_line(line, params, file_name="", line_no=0):
     in_macro, transition, escape = False, False, False
         
     out_line = ""
     macro = ""
     
+    pos = 0
+    
     for c in line:
-        if escape:
-            d = None
-            
-            escape = False
-        elif c == '\\':
-            d = ''
-            
-            escape = True
-        else:
-            d = c
+        pos += 1
         
-        if d is None:
-            e = c
-        else:
-            e = d
+        d, e, escape = _escape_state_machine(c, escape)
         
-        if in_macro and transition and d == '>':
-            in_macro, transition = False, False
-            
-            out_line += params[macro]
-        elif in_macro and transition:
-            transition = False
-            
-            macro += (']' + e)
-        elif in_macro and d == ']':
-            transition = True
-        elif in_macro:
-            macro += e
-        elif transition and d == '[':
-            in_macro, transition = True, False
-            
-            macro = ""
-        elif transition:
-            transition = False
-            
-            out_line += ('<' + e)
-        elif d == '<':
-            transition = True
-        else:
-            out_line += e
+        out_line, macro, in_macro, transition \
+            = _macro_state_machine(
+                    d, e, in_macro, transition, out_line, macro, params,
+                    file_name=file_name, line_no=line_no, pos=pos, line=line)
     
     return out_line
+
+
+def _escape_state_machine(c, escape):
+    if escape:
+        d = ''
+        e = c
+        
+        escape = False
+    elif c == '\\':
+        d = ''
+        e = ''
+        
+        escape = True
+    else:
+        d = c
+        e = c
+    
+    return d, e, escape
+
+
+def _macro_state_machine(d, e, in_macro, transition, out_line, macro, params,
+                         file_name="", line_no=0, pos=1, line=None):
+    if in_macro and transition and d == '>':
+        in_macro, transition = False, False
+        
+        out_line += _get_parameter(params, macro, file_name=file_name,
+                                   line_no=line_no, pos=pos, line=line)
+    elif in_macro and transition:
+        transition = False
+        
+        macro += (']' + e)
+    elif in_macro and d == ']':
+        transition = True
+    elif in_macro:
+        macro += e
+    elif transition and d == '[':
+        in_macro, transition = True, False
+        
+        macro = ""
+    elif transition:
+        transition = False
+        
+        out_line += ('<' + e)
+    elif d == '<':
+        transition = True
+    else:
+        out_line += e
+    
+    return out_line, macro, in_macro, transition
+
+
+def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
+    if line == None:
+        line = param
+    
+    try:
+        return params[param]
+    except KeyError:
+        traceback.print_exception(shared.ParseError(
+                                    f"Missing parameter '{param}'",
+                                    (file_name, line_no, pos, line)))
+        
+        params[param] = ""
+        return params[param]
+
+
+def _parse_cli_parameters(args):
+    params = {}
+    
+    for arg in args:
+        escape = False
+        
+        idx = 0
+        
+        name_val = ["", ""]
+        
+        for c in arg:
+            if escape:
+                name_val[idx] += c
+                
+                escape = False
+            elif c == '\\':
+                escape = True
+            elif c == '=':
+                idx += 1
+            else:
+                name_val[idx] += c
+        
+        if idx == 1:
+            params[name_val[0]] = name_val[1]
+    
+    return params
 
 
 if __name__ == "__main__":
