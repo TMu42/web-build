@@ -176,7 +176,7 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
     try:
         return params[param]
     except KeyError:
-        traceback.print_exception(shared.ParseError(
+        traceback.print_exception(shared.ParameterError(
                                 f"Missing parameter '{param}', (default='')",
                                 (file_name, line_no, pos, line)))
         
