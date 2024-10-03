@@ -86,8 +86,30 @@ def open_output(name):
     return open(name, 'w')
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       parse_shebang(infile)                                                 #
+#                                                                             #
+#   Parameters:                                                               #
+#       infile      -   file:   an open, readable file whose current file     #
+#                               position pointer is at the beginning of the   #
+#                               logical file, required.                       #
+#                                                                             #
+#   Returns:    string, int:    The first non-shebang line and the line       #
+#                               number of this line (1 or 2).                 #
+#                                                                             #
+#   Raises:                                                                   #
+#       IOError     -   when `infile` is not readable.                        #
+#                                                                             #
+#   Description:                                                              #
+#       Read from an open file, the first line and if it is a shebang,        #
+#       discard and read the second line. Return the full line and the line   #
+#       number (either 1 or 2).                                               #
+#                                                                             #
+###############################################################################
 def parse_shebang(infile):
-    if (line := infile.readline()) and line[0] == '#':
+    if (line := infile.readline()) and line[0:2] == "#!":
         return infile.readline(), 2
     
     return line, 1
@@ -113,7 +135,7 @@ def parse_shebang(infile):
 #   Returns:    list:   a list of the command fields as strings.              #
 #                                                                             #
 #   Raises:                                                                   #
-#       ParseError  -   When `line` is not a properly formed command.         #
+#       ParseError  -   when `line` is not a properly formed command.         #
 #                                                                             #
 #   Description:                                                              #
 #       Parses a line containing a valid command syntax and returns that      #
