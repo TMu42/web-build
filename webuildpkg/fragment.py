@@ -44,29 +44,15 @@ def open_fragment(name):
         f"'{'\', \''.join([name + ext for ext in FRAGMENT_EXTS])}'.")
 
 
-def parse_fragment(infile, outfile):
-    line_no = 0
-    
-    if (line := infile.readline()) and line[0] == '#':
-        line = infile.readline()
+def parse_fragment(infile, outfile, line_no=0):
+    if line_no == 0:
+        line, line_no = shared.parse_shebang(infile)
         
-        line_no += 1
-    
-    line_no += 1
-    
-    try:
-        command = shared.parse_command(
-                    line, file_name=infile.name, line_no=line_no)[1:-1]
-    except shared.ParseError as e:
-        traceback.print_exception(e)
-        
-        outfile.write(line)
-    else:
-        if (not command[1:]) or command[1] != shared.FRAGMENT_ID:
-            traceback.print_exception(
-                        shared.ParseError(
-                            f"Invalid fragment file declaration.",
-                            (infile.name, line_no, 1, line.strip())))
+        try:
+            _assert_fragment(shared.parse_command(line, infile.name, line_no),
+                             infile.name, line_no, line)
+        except shared.ParseError as e:
+            traceback.print_exception(e)
             
             outfile.write(line)
     
@@ -74,6 +60,14 @@ def parse_fragment(infile, outfile):
         line_no += 1
         
         outfile.write(line)
+
+
+def _assert_fragment(command, file_name="", line_no=0, line=""):
+    cmd = command[1:-1]
+    
+    if (not cmd[1:]) or cmd[1] != shared.FRAGMENT_ID:
+        raise shared.ParseError(f"Invalid fragment file declaration.",
+                                (file_name, line_no, 1, line.strip()))
 
 
 if __name__ == "__main__":

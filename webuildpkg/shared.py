@@ -8,6 +8,7 @@ PARAMETRIC_ID = "PARAMETRIC"
 
 
 class ParseError(SyntaxError): pass
+class ParameterError(SyntaxError): pass
 
 
 def open_output(name):
@@ -15,6 +16,13 @@ def open_output(name):
         return sys.stdout
     
     return open(name, 'w')
+
+
+def parse_shebang(infile):
+    if (line := infile.readline()) and line[0] == '#':
+        return infile.readline(), 2
+    
+    return line, 1
 
 
 def parse_command(line, file_name="", line_no=0):

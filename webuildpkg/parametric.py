@@ -47,15 +47,12 @@ def open_parametric(name):
 
 
 def parse_parametric(infile, outfile, params={}, line_no=0):
-    if (line := infile.readline()) and line[0] == '#':
-        line = infile.readline()
+    if line_no == 0:
+        line, line_no = shared.parse_shebang(infile)
         
-        line_no += 1
+        _assert_parametric(shared.parse_command(line, infile.name, line_no),
+                           infile.name, line_no, line)
     
-    line_no += 1
-    
-    _assert_parametric(shared.parse_command(line, infile.name, line_no),
-                       infile.name, line_no, line)
     while (line := infile.readline()):
         line_no += 1
         
@@ -72,23 +69,26 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
 def _param(command, params, file_name="", line_no=0, line=""):
     cmd = command[1:-1] + ["", "", "", ""]
     
+    if cmd[0:2] != ["", "PARAM"]:
+        raise ValueError(f"Command {command} is not a parameter declaration.")
+    
+    if cmd[2] in params.keys():
+        return
+    
     if cmd[3] == "True" and cmd[4] == "":
-        raise shared.ParseError(f"Missing required parameter {cmd[2]}",
-                                (file_name, line_no, 1, line.strip()))
+        raise shared.ParameterError(f"Missing required parameter {cmd[2]}",
+                                    (file_name, line_no, 1, line.strip()))
     elif cmd[3] == "True":
-        traceback.print_exception(shared.ParseError(
-            f"Missing required parameter {cmd[2]} with default value {cmd[4]}",
+        traceback.print_exception(shared.ParameterError(
+            f"Missing required parameter {cmd[2]} with default value "
+            f"'{cmd[4]}'",
             (file_name, line_no, 1, line.strip())))
     elif cmd[3] == "" and cmd[4] == "":
-        traceback.print_exception(shared.ParseError(
+        traceback.print_exception(shared.ParameterError(
             f"Missing parameter '{cmd[2]}', (default='')",
             (file_name, line_no, 1, line.strip())))
     
-    if cmd[0:2] == ["", "PARAM"]:
-        if cmd[2] not in params.keys():
-            params[cmd[2]] = cmd[4]
-    else:
-        raise ValueError(f"Command {command} is not a parameter declaration.")
+    params[cmd[2]] = cmd[4]
 
 
 def _assert_parametric(command, file_name="", line_no=0, line=""):
