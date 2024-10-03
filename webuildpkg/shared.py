@@ -1,6 +1,8 @@
 ###############################################################################
 ###############################################################################
 ####                                                                       ####
+####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
+####                                                                       ####
 ####    File: `shared.py`                                                  ####
 ####                                                                       ####
 ####    Shared properties for package `webuildpkg` which provides file     ####
@@ -19,21 +21,28 @@ import sys
 #                               stdin or stdout respectively, rather than     #
 #                               to a regular file.                            #
 #                                                                             #
+#           TEMPLATE_ID     -   The file and command ID string for template   #
+#                               files. This appears in the declaration        #
+#                               command (file identifier) and also the        #
+#                               name (field 1) of the command for invoking    #
+#                               template files.                               #
+#                                                                             #
 #           FRAGMENT_ID     -   The file and command ID string for fragment   #
 #                               files. This appears in the declaration        #
 #                               command (file identifier) and also the        #
 #                               name (field 1) of the command for invoking    #
-#                               these files.                                  #
+#                               fragment files.                               #
 #                                                                             #
 #           PARAMETRIC_ID   -   The file and command ID string for            #
 #                               parametric files. This appears in the         #
 #                               declaration command (file identifier) and     #
 #                               also the name (field 1) of the command for    #
-#                               invoking these files.                         #
+#                               invoking parametric files.                    #
 #                                                                             #
 ###############################################################################
 STDIOS = ['-', '']
 
+TEMPLATE_ID   = "TEMPLATE"
 FRAGMENT_ID   = "FRAGMENT"
 PARAMETRIC_ID = "PARAMETRIC"
 
@@ -65,7 +74,7 @@ class ParameterError(SyntaxError): pass
 #                                                                             #
 #   Parameters:                                                               #
 #       name        -   string: the file name or handle to open as an         #
-#                               file, required.                               #
+#                               output file, required.                        #
 #                                                                             #
 #   Returns:    file:   an open file which can be written to.                 #
 #                                                                             #
