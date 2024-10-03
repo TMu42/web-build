@@ -128,6 +128,15 @@ def open_fragment(name):
 #       outfile     -   file:   an open output file, the file to write,       #
 #                               required.                                     #
 #                                                                             #
+#       line_no     -   int:    the initial line number, default value is     #
+#                               the beginning of the file. The file           #
+#                               position is not modified, this should         #
+#                               be the number of lines already read before    #
+#                               the current file position. This is mostly     #
+#                               used for error text but also influences       #
+#                               whether the file type declaration is          #
+#                               checked, default=0.                           #
+#                                                                             #
 #   Returns:    None.                                                         #
 #                                                                             #
 #   Raises:                                                                   #
@@ -183,6 +192,10 @@ def parse_fragment(infile, outfile, line_no=0):
 #   Raises:                                                                   #
 #       shared.ParseError   -   when `command` is not a fragment file         #
 #                               declaration.                                  #
+#                                                                             #
+#   Description:                                                              #
+#       Check that the passed `command` is a fragment file declaration and    #
+#       raise `ParseError` if it is not.                                      #
 #                                                                             #
 ###############################################################################
 def _assert_fragment(command, file_name="", line_no=0, line=""):
