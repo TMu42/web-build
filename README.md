@@ -24,9 +24,9 @@ line shall be `::TEMPLATE;`. This is a special case, all other `#` commencing
 lines will be preserved in the output. This means that an executable (shebang)
 template to produce an executable (shebang) script could commence as:
 
-    `#! /path/to/build.py
+     #! /path/to/build.py
      ::TEMPLATE; to build executable script
-     #! /path/to/interpreter`
+     #! /path/to/interpreter
 
 It is also recomended that template files use the file extension `.template`
 however this is not mandated. A consitant style for file extensions should be
@@ -40,24 +40,25 @@ The following syntax is available throughout the template file:
    is treated as a literal line, the `\` is stripped however the whitespace
    (if any) is preserved.
    
-        `    \:This is a line commencing with four spaces and a colon.`
-        ->
-        `    :This is a line commencing with four spaces and a colon.`
-        
-        `\\This is a line commencing with a back slash.`
-        ->
-        `\This is a line commencing with a backslash.`
-        
-        `\\:This is a line commencing with a back slash and a colon.`
-        ->
-        `\:This is a line commencing with a back slash and a colon.`
+   `    \:This is a line commencing with four spaces and a colon.`<br>
+   --><br>
+   `    :This is a line commencing with four spaces and a colon.`<br><br>
+   
+   `\\This is a line commencing with a back slash.`<br>
+   --><br>
+   `\This is a line commencing with a backslash.`<br><br>
+   
+   `\\:This is a line commencing with a back slash and a colon.`<br>
+   --><br>
+   `\:This is a line commencing with a back slash and a colon.`<br>
 
    Note that the `\` character is a general escape character throughout the
    `build.py` syntax and must be escaped (`\\`) wherever it is needed in an
    output. The character directly following a `\` will be output as literal,
-   whether or not it has a special meaning.
+   whether or not it has a special meaning. There are no currently supported
+   escape sequences for special or non-printing characters.
    
-2. Any line commencing with the `:` character (preceeded only by whitespace)
+3. Any line commencing with the `:` character (preceeded only by whitespace)
    is treated as a command. If an output line needs to commence with a `:`, it
    should be escaped with a `\`. Commands must reside on a single line and
    consume the entire line. Commands must be closed with the `;` character.
@@ -67,14 +68,14 @@ The following syntax is available throughout the template file:
    preceeding a command is ignored and context indentation must be generated
    by the command or otherwise specified.
    
-        `:;This line is just a comment, nothing will be echoed to the output.`
+   `:;This line is just a comment, nothing will be echoed to the output.`
     
-        `    :command;This line will be replaced by the output of "command".`
+   `    :COMMAND;This line will be replaced by the output of "COMMAND".`
 
    Note, the template file writer/user is expected to ensure that all commands
    are valid.
 
-3. Any line whose first (non-whitespace) character is not the `:` character
+4. Any line whose first (non-whitespace) character is not the `:` character
    will be echoed to the output after escapes have been processes.
 
 ### Template Command Syntax
@@ -85,9 +86,10 @@ with a semicolon. Neither the colon, nor the semicolon should occur unescaped
 within a command other than as the delimeter and terminator. The general form
 of commands is:
 
-    `:FIELD_1[:FIELD_2[:FIELD_3[...]]; comment`
+    :FIELD_1[:FIELD_2[:FIELD_3[...]];
 
-where any field may be empty.
+where any field may be empty. The number of fields is not limited but will
+depend upon the type of command being issued.
 
 The following command types are available in template files:
 
@@ -121,7 +123,8 @@ The following command types are available in template files:
                 These fields must contain exactly one unescaped equals sign.
                 This command will fail if the file path cannot be resolved and
                 may fail if the file is not declared as a `::PARAMETRIC;` or
-                if required parameters are not provided. Parametric files are
+                if required parameters are not provided or if there are syntax
+                errors in parsing parameter fields. Parametric files are
                 similar to fragment files except that they may declare and
                 resolve parameters when they are parsed.
 
