@@ -60,7 +60,8 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
         line_no += 1
         
         try:
-            _param(shared.parse_command(line, infile.name, line_no), params) 
+            _param(shared.parse_command(line, infile.name, line_no),
+                   params, infile.name, line_no, line) 
         except shared.ParseError:
             outfile.write(
                 _parse_parametric_line(line, params, infile.name, line_no))
@@ -68,8 +69,20 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
             traceback.print_exception(e)
 
 
-def _param(command, params):
+def _param(command, params, file_name="", line_no=0, line=""):
     cmd = command[1:-1] + ["", "", "", ""]
+    
+    if cmd[3] == "True" and cmd[4] == "":
+        raise shared.ParseError(f"Missing required parameter {cmd[2]}",
+                                (file_name, line_no, 1, line.strip()))
+    elif cmd[3] == "True":
+        traceback.print_exception(shared.ParseError(
+            f"Missing required parameter {cmd[2]} with default value {cmd[4]}",
+            (file_name, line_no, 1, line.strip())))
+    elif cmd[3] == "" and cmd[4] == "":
+        traceback.print_exception(shared.ParseError(
+            f"Missing parameter '{cmd[2]}', (default='')",
+            (file_name, line_no, 1, line.strip())))
     
     if cmd[0:2] == ["", "PARAM"]:
         if cmd[2] not in params.keys():
@@ -164,11 +177,12 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
         return params[param]
     except KeyError:
         traceback.print_exception(shared.ParseError(
-                                    f"Missing parameter '{param}'",
-                                    (file_name, line_no, pos, line)))
+                                f"Missing parameter '{param}', (default='')",
+                                (file_name, line_no, pos, line)))
         
         params[param] = ""
-        return params[param]
+        
+        return ""
 
 
 def _parse_cli_parameters(args):
