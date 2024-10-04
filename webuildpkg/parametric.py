@@ -148,7 +148,11 @@ def open_parametric(name):
 #   Returns:    None.                                                         #
 #                                                                             #
 #   Raises:                                                                   #
-#       Normally nothing unless something is actually wrong with the call.    #
+#       shared.ParseError       -   when the input file is not a correctly    #
+#                                   declared parametric file.                 #
+#                                                                             #
+#       shared.ParameterError   -   when a required parameter is not          #
+#                                   provided in `params`.                     #
 #                                                                             #
 #   Description:                                                              #
 #       Parses a parametric file with a set of parameter substitutions (see   #
@@ -211,6 +215,10 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
 #                           it is missing form `params`.                      #
 #                                                                             #
 #   Description:                                                              #
+#       Take a parameter declaration command, check if it has been supplied   #
+#       at invocation (or by a previous declaration), raise any errors or     #
+#       warnings per the declaration parameters (see README) and update the   #
+#       parameter list as needed.                                             #
 #                                                                             #
 ###############################################################################
 def _param(command, params, file_name="", line_no=0, line=""):
@@ -238,6 +246,39 @@ def _param(command, params, file_name="", line_no=0, line=""):
     params[cmd[2]] = cmd[4]
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _assert_parametric(command, file_name="", line_no=0, line="")         #
+#                                                                             #
+#   Parameters:                                                               #
+#       command     -   list:   a valid parsed command, the output of         #
+#                               `shared.parse_command()` applied to the       #
+#                               declaration line of a file, required.         #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#   Returns:    None.                                                         #
+#                                                                             #
+#   Raises:                                                                   #
+#       shared.ParseError   -   when `command` is not a parametric file       #
+#                               declaration.                                  #
+#                                                                             #
+#   Description:                                                              #
+#       Check that the passed `command` is a parametric file declaration      #
+#       and raise `ParseError` if it is not.                                  #
+#                                                                             #
+###############################################################################
 def _assert_parametric(command, file_name="", line_no=0, line=""):
     cmd = command[1:-1]
     
@@ -246,6 +287,43 @@ def _assert_parametric(command, file_name="", line_no=0, line=""):
                                 (file_name, line_no, 1, line.strip()))
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _parse_parametric_line(line, params, file_name="" line_no=0)          #
+#                                                                             #
+#   Parameters:                                                               #
+#       line        -   string: a line from the file being parsed,            #
+#                               required.                                     #
+#                                                                             #
+#       params      -   dict:   the substitution parameters used for          #
+#                               parsing the parametric file, default={}.      #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#   Returns:    string: the parsed line after escapes and substitutions       #
+#                       have been applied to the input.                       #
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       Parses a single line from a parametric file with a set of parameter   #
+#       substitutions (see README). Escapes are correctly processed and       #
+#       parameter substitutions are performed. This method assumes that the   #
+#       line is not a valid command so this should have been checked first    #
+#       (with `shared.parse_command()` and `_param()`. Note that this         #
+#       method makes use of another two helper methods which provide the      #
+#       state-machines for line parsing: `_escape_state_machine()` and        #
+#       `_macro_state_machine()`.                                             #
+#                                                                             #
+###############################################################################
 def _parse_parametric_line(line, params, file_name="", line_no=0):
     in_macro, transition, escape = False, False, False
         
@@ -267,6 +345,40 @@ def _parse_parametric_line(line, params, file_name="", line_no=0):
     return out_line
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _escape_state_machine(c, escape)                                      #
+#                                                                             #
+#   Parameters:                                                               #
+#       c           -   string: a single character of line input,             #
+#                               required.                                     #
+#                                                                             #
+#       escape      -   bool:   the "current" state of this state-machine,    #
+#                               required.                                     #
+#                                                                             #
+#   Returns:                                                                  #
+#       string: the control character output to the next state-machine.       #
+#       string: the output character output to the next state-machine.        #
+#       bool:   the "new" state of this state-machine.                        #
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       This state-machine has just two states, represented by the boolean    #
+#       value of the `escape` variable. `escape` is true exactly when the     #
+#       last consumed character was an unescaped escape character.            #
+#                                                                             #
+#       Consume a single character of line input, update the state and        #
+#       two characters (which may be empty) which will be parsed to the       #
+#       next state-machine. The first character will either be the input,     #
+#       if unescaped, or empty, if escaped. The next machine will use this    #
+#       value to update its state. The second value will either be the        #
+#       input, if it is not an unescaped escape character, or empty, it it    #
+#       is. The next machine may use this value to generate its output.       #
+#                                                                             #
+###############################################################################
 def _escape_state_machine(c, escape):
     if escape:
         d = ''
@@ -285,6 +397,66 @@ def _escape_state_machine(c, escape):
     return d, e, escape
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _macro_state_machine(                                                 #
+#               d, e, in_macro, transition, out_line, macro, params,          #
+#               file_name="", line_no=0, pos=1, line=None)                    #
+#                                                                             #
+#   Parameters:                                                               #
+#       d           -   string: zero or one characters which may be a         #
+#                               control character indicating the beginning    #
+#                               or end of a substitution parameter,           #
+#                               required.                                     #
+#                                                                             #
+#       e           -   string: zero or one characters which might form       #
+#                               part of the parsed output, required.          #
+#                                                                             #
+#       in_macro    -   bool:   part of the "current" state of this state-    #
+#                               machine, True exactly when the context is     #
+#                               inside a substitution parameter tag which     #
+#                               has been completely opened and not            #
+#                               completely closed, required.                  #
+#                                                                             #
+#       transition  -   bool:   part of the "current" state of this state-    #
+#                               machine, True exactly when the first but      #
+#                               not the second character of the opening or    #
+#                               closing parameter tag sequence has been       #
+#                               consumed in a context where the second        #
+#                               character would change the value of           #
+#                               `in_macro`, required.                         #
+#                                                                             #
+#       out_line    -
+#       macro       -
+#       params      -
+#       file_name   -
+#       line_no     -
+#       pos         -
+#       line        -
+#                                                                             #
+#   Returns:                                                                  #
+#       string: the control character output to the next state-machine.       #
+#       string: the output character output to the next state-machine.        #
+#       bool:   the "new" state of this state-machine.                        #
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       This state-machine has just two states, represented by the boolean    #
+#       value of the `escape` variable. `escape` is true exactly when the     #
+#       last consumed character was an unescaped escape character.            #
+#                                                                             #
+#       Consume a single character of line input, update the state and        #
+#       two characters (which may be empty) which will be parsed to the       #
+#       next state-machine. The first character will either be the input,     #
+#       if unescaped, or empty, if escaped. The next machine will use this    #
+#       value to update its state. The second value will either be the        #
+#       input, if it is not an unescaped escape character, or empty, it it    #
+#       is. The next machine may use this value to generate its output.       #
+#                                                                             #
+###############################################################################
 def _macro_state_machine(d, e, in_macro, transition, out_line, macro, params,
                          file_name="", line_no=0, pos=1, line=None):
     if in_macro and transition and d == '>':
