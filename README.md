@@ -157,38 +157,44 @@ The following syntax is available in parametric files:
 
 1. `<[PARAM_NAME]>`
 
-       -    May occur anywhere in the file which is not a command or comment but must be contained on a single line
-            in each instance. It will be substituted for the value bound to `PARAM_NAME` at invocation. Each
-            `PARAM_NAME` may appear any number of times in the file. The default behaviour (if not otherwise declared)
-            is for parameters not mapped at invocation to raise a warning and default to an empty string substitution.
-            To modify this behaviour, a declaration for the parameter is required. It is recomended that parameter
-            names should be in allcaps style.
+       -    May occur anywhere in the file which is not a command or comment but must be
+            contained on a single line in each instance. It will be substituted for the value
+            bound to `PARAM_NAME` at invocation. Each `PARAM_NAME` may appear any number of times
+            in the file. The default behaviour (if not otherwise declared) is for parameters not
+            mapped at invocation to raise a warning and default to an empty string substitution.
+            To modify this behaviour, a declaration for the parameter is required. It is
+            recomended that parameter names should be in allcaps style.
 
 2. `::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT_VAL]];`
 
-       -    This is the standard syntax for a parameter declaration. All parameter declarations should occur at the top
-            of the file, immediately following the file declaration. The parameter declaration syntax contains a number
-            of standard components:
+       -    This is the standard syntax for a parameter declaration. All parameter declarations
+            should occur at the top of the file, immediately following the file declaration. The
+            parameter declaration syntax contains a number of standard components:
 
                 1. As with all declarations, field 1 mush be empty.
    
                 2. Field 2 shall be exactly `PARAM` so the declaration begins `::PARAM`.
    
-                3. Field 3 specifies the parameter name. being declared. `PARAM_NAME` should exactly match the
-                   `PARAM_NAME` from the `<[PARAM_NAME]>` tokens in the file body.
+                3. Field 3 specifies the parameter name. being declared. `PARAM_NAME` should
+                   exactly match the `PARAM_NAME` from the `<[PARAM_NAME]>` tokens in the file
+                   body.
    
-                4. Field 4 specifies whether the parameter is required at invocation. `REQUIRED` is either a boolean
-                   (True|False) or empty. This value may be implied (or even overwriten) by the next field.
+                4. Field 4 specifies whether the parameter is required at invocation. `REQUIRED`
+                   is either a boolean (True|False) or empty. This value may be implied (or even
+                   overwriten) by the next field.
    
-                5. Field 5 specifies the default value to bind to `PARAM_NAME` if not provided by the invocation. A
-                   non-empty value of `DEFAULT_VAL` may modify the `REQUIRED` value or interpretation, see below.
+                5. Field 5 specifies the default value to bind to `PARAM_NAME` if not provided by
+                   the invocation. A non-empty value of `DEFAULT_VAL` may modify the `REQUIRED`
+                   value or interpretation, see below.
 
-            If neither `REQUIRED` nor `DEFAULT_VAL` are set, the declaration does not change the default behaviour
-            however the warning will be raised whether or not the parameter occurs in the body of the parametric file.
-            If only `REQUIRED` is set, the template invocation will fail if the parameter is not bound. If only
-            `DEFAULT_VAL` is set, `REQUIRED` is set to `False`. If both `REQUIRED` and `DEFAULT_VAL` are set and
-            `REQUIRED` is `True`, it will raise only a warning (not the usual error) if the invocation fails to bind
-            `PARAM_NAME` and the invocation will succeed (notwithstanding other errors).
+            If neither `REQUIRED` nor `DEFAULT_VAL` are set, the declaration does not change the
+            default behaviour however the warning will be raised whether or not the parameter
+            occurs in the body of the parametric file. If only `REQUIRED` is set, the template
+            invocation will fail if the parameter is not bound. If only `DEFAULT_VAL` is set,
+            `REQUIRED` is set to `False`. If both `REQUIRED` and `DEFAULT_VAL` are set and
+            `REQUIRED` is `True`, it will raise only a warning (not the usual error) if the
+            invocation fails to bind `PARAM_NAME` and the invocation will succeed
+            (notwithstanding other errors).
 
             Example behaviour when unbound at invocation:
 
@@ -206,12 +212,13 @@ The following syntax is available in parametric files:
 
 3. `\`
 
-       -    As with the template format, a line commencing with a backslash is treated as literal with the leading
-            slash stripped. In this way, a literal line commencing with `:` or `\` can be achieved by pre-appending a
-            backslash. In parametric files, the backslash can also be used to escape a single parameter token (or
-            rather it can be used to escape the opening of a parameter token, e.g. `\<[A]>` will output the literal
-            `<[A]>` without attempting to perform substitution. Note that `\` is a general escape character that must
-            itself be escaped (`\\`) to achieve a literal `\` in the output.
+       -    As with the template format, a line commencing with a backslash is treated as literal
+            with the leading slash stripped. In this way, a literal line commencing with `:` or
+            `\` can be achieved by pre-appending a backslash. In parametric files, the backslash
+            can also be used to escape a single parameter token (or rather it can be used to
+            escape the opening of a parameter token, e.g. `\<[A]>` will output the literal
+            `<[A]>` without attempting to perform substitution. Note that `\` is a general escape
+            character that must itself be escaped (`\\`) to achieve a literal `\` in the output.
 
             Examples:
    
