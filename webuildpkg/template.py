@@ -19,12 +19,21 @@ except ImportError:
     import shared
 
 
-FRAGMENT_EXTS = ["", ".fragment", ".frag"]
+###############################################################################
+#                                                                             #
+#   Template Constants:                                                       #
+#           TEMPLATE_EXTS   -   A priority ordered list of default file       #
+#                               extension to append to template file          #
+#                               identifiers. `open_template()` will try       #
+#                               each in turn until one succeeds.              #
+#                                                                             #
+###############################################################################
+TEMPLATE_EXTS = ["", ".template", ".temp"]
 
 
 def main(args):
     try:
-        infile = open_fragment(args[1])
+        infile = open_template(args[1])#########################
     except IndexError:
         infile  = sys.stdin
         outfile = sys.stdout

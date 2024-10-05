@@ -23,9 +23,9 @@ except ImportError:
 #                                                                             #
 #   Parametric Constants:                                                     #
 #           PARAMETRIC_EXTS     -   A priority ordered list of default file   #
-#                                   extension to append to fragment file      #
-#                                   identifiers. `open_fragment()` will try   #
-#                                   each in turn until one succeeds.          #
+#                                   extension to append to parametric file    #
+#                                   identifiers. `open_parametric()` will     #
+#                                   try each in turn until one succeeds.      #
 #                                                                             #
 ###############################################################################
 PARAMETRIC_EXTS = ["", ".parametric", ".param"]
