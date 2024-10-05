@@ -482,7 +482,7 @@ def _escape_state_machine(c, escape):
 #       name as appropriate. Which of these variables will be extended        #
 #       depends upon the context however the `out_line` value will contain    #
 #       the iteratively generated parsed output once this state-machine and   #
-#       its predecessor have consumed the eintire input line.                 #
+#       its predecessor have consumed the entire input line.                  #
 #                                                                             #
 ###############################################################################
 def _macro_state_machine(d, e, in_macro, transition, out_line, macro, params,
@@ -516,6 +516,46 @@ def _macro_state_machine(d, e, in_macro, transition, out_line, macro, params,
     return out_line, macro, in_macro, transition
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _get_parameter(                                                       #
+#               params, param, file_name="", line_no=0, pos=1, line=None)     #
+#                                                                             #
+#   Parameters:                                                               #
+#       params      -   dict:   the substitution parameters used for          #
+#                               parsing the parametric file, required.        #
+#                                                                             #
+#       param       -   string: the name of the parameter to look up,         #
+#                               required.                                     #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#       pos         -   int:    the position in the line, only used for       #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=1.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#   Returns:    string: the value bound to the parameter or "" if no value    #
+#                       is bound.
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       Check the parameter dictionary for the requested parameter, return    #
+#       it if present, otherwise set it to "" and return this.                #
+#                                                                             #
+###############################################################################
 def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
     if line == None:
         line = param
@@ -532,6 +572,28 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
         return ""
 
 
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _parse_cli_parameters(args)                                           #
+#                                                                             #
+#   Parameters:                                                               #
+#       args    -   list:   a list of command line arguments which may, or    #
+#                           may not include parameter value bindings,         #
+#                           required.                                         #
+#                                                                             #
+#   Returns:    dict:   the parameter dictionary mapping each parameter       #
+#                       name to its bound value.                              #
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       Read key=value pairs from a list of command line arguments,           #
+#       ignoring any arguments which don't contain a single unescaped '='     #
+#       and return a dictionary of these key, value pairs.                    #
+#                                                                             #
+###############################################################################
 def _parse_cli_parameters(args):
     params = {}
     
@@ -560,6 +622,12 @@ def _parse_cli_parameters(args):
     return params
 
 
+###############################################################################
+#                                                                             #
+#   Non-function code to call `main()` when this file is executed rather      #
+#   than imported.                                                            #
+#                                                                             #
+###############################################################################
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
 
