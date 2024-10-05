@@ -367,16 +367,16 @@ def _parse_parametric_line(line, params, file_name="", line_no=0):
 #                                                                             #
 #   Description:                                                              #
 #       This state-machine has just two states, represented by the boolean    #
-#       value of the `escape` variable. `escape` is true exactly when the     #
+#       value of the `escape` variable. `escape` is `True` exactly when the   #
 #       last consumed character was an unescaped escape character.            #
 #                                                                             #
 #       Consume a single character of line input, update the state and        #
-#       two characters (which may be empty) which will be parsed to the       #
-#       next state-machine. The first character will either be the input,     #
-#       if unescaped, or empty, if escaped. The next machine will use this    #
-#       value to update its state. The second value will either be the        #
-#       input, if it is not an unescaped escape character, or empty, it it    #
-#       is. The next machine may use this value to generate its output.       #
+#       output two characters (which may be empty) which will be parsed to    #
+#       the next state-machine. The first character will either be the        #
+#       input, if unescaped, or empty, if escaped. The next machine will      #
+#       use this value to update its state. The second value will either be   #
+#       the input, if it is not an unescaped escape character, or empty, it   #
+#       it is. The next machine may use this value to generate its output.    #
 #                                                                             #
 ###############################################################################
 def _escape_state_machine(c, escape):
@@ -427,34 +427,62 @@ def _escape_state_machine(c, escape):
 #                               character would change the value of           #
 #                               `in_macro`, required.                         #
 #                                                                             #
-#       out_line    -
-#       macro       -
-#       params      -
-#       file_name   -
-#       line_no     -
-#       pos         -
-#       line        -
+#       out_line    -   string: the parsed output line up to this point,      #
+#                               this method will add its output to the        #
+#                               given string if the current context is not    #
+#                               `in_macro`, required.                         #
+#                                                                             #
+#       macro       -   string: the (iteratively constructed, partial) name   #
+#                               of the current substitution parameter, this   #
+#                               method will add its output to the given       #
+#                               string when the current context is            #
+#                               `in_macro`, required.                         #
+#                                                                             #
+#       params      -   dict:   the substitution parameters used for          #
+#                               parsing the parametric file, required.        #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               for error messages so may safely be omitted   #
+#                               if this is not required, default=0.           #
+#                                                                             #
+#       pos         -   int:    the position in the line, only used for       #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=1.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
 #                                                                             #
 #   Returns:                                                                  #
-#       string: the control character output to the next state-machine.       #
-#       string: the output character output to the next state-machine.        #
-#       bool:   the "new" state of this state-machine.                        #
+#       string: the updated value of `out_line`.                              #
+#       string: the updated value of `macro`.                                 #
+#       bool:   part of the "new" state of this state-machine, the updated    #
+#               value of `in_macro`.                                          #
+#       bool:   part of the "new" state of this state-machine, the updated    #
+#               value of `transition`.                                        #
 #                                                                             #
 #   Raises:                                                                   #
 #       Normally nothing unless something is actually wrong with the call.    #
 #                                                                             #
 #   Description:                                                              #
-#       This state-machine has just two states, represented by the boolean    #
-#       value of the `escape` variable. `escape` is true exactly when the     #
-#       last consumed character was an unescaped escape character.            #
+#       This state-machine four states, represented by a pair of boolean      #
+#       value, the `in_macro` and `transition` variables. `in_macro` is       #
+#       `True` exactly when the unescaped substring "<[" has been consumed    #
+#       and the unescaped substring "]>" has not been since consumed.         #
+#       `transition` is `True` exactly when `in_macro` is `False` and the     #
+#       last character was an unescaped '<' or `in_macro` is `True` and the   #
+#       last character was an unescaped ']'.                                  #
 #                                                                             #
-#       Consume a single character of line input, update the state and        #
-#       two characters (which may be empty) which will be parsed to the       #
-#       next state-machine. The first character will either be the input,     #
-#       if unescaped, or empty, if escaped. The next machine will use this    #
-#       value to update its state. The second value will either be the        #
-#       input, if it is not an unescaped escape character, or empty, it it    #
-#       is. The next machine may use this value to generate its output.       #
+#       Consume the output of a single cycle of `_escape_state_machine()`,    #
+#       update the state and update the parsed output and current parameter   #
+#       name as appropriate. Which of these variables will be extended        #
+#       depends upon the context however the `out_line` value will contain    #
+#       the iteratively generated parsed output once this state-machine and   #
+#       its predecessor have consumed the eintire input line.                 #
 #                                                                             #
 ###############################################################################
 def _macro_state_machine(d, e, in_macro, transition, out_line, macro, params,
