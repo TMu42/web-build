@@ -103,9 +103,12 @@ def main(args):
 #       indicated, sys.stdin is returned.                                     #
 #                                                                             #
 ###############################################################################
-def open_template(name):
+def open_template(name, path=None):
     if name in shared.STDIOS:
         return sys.stdin
+    
+    if path and name[0] != '/':
+        name = f"{path}/{name}"
     
     for ext in TEMPLATE_EXTS:
         try:

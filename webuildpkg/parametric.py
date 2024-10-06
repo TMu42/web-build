@@ -102,9 +102,12 @@ def main(args):
 #       indicated, sys.stdin is returned.                                     #
 #                                                                             #
 ###############################################################################
-def open_parametric(name):
+def open_parametric(name, path=None):
     if name in shared.STDIOS:
         return sys.stdin
+    
+    if path and name[0] != '/':
+        name = f"{path}/{name}"
     
     for ext in PARAMETRIC_EXTS:
         try:

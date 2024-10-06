@@ -99,9 +99,12 @@ def main(args):
 #       indicated, sys.stdin is returned.                                     #
 #                                                                             #
 ###############################################################################
-def open_fragment(name):
+def open_fragment(name, path=None):
     if name in shared.STDIOS:
         return sys.stdin
+    
+    if path and name[0] != '/':
+        name = f"{path}/{name}"
     
     for ext in FRAGMENT_EXTS:
         try:
