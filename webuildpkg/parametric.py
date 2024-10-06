@@ -584,6 +584,18 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
 #                           may not include parameter value bindings,         #
 #                           required.                                         #
 #                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="argv".              #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default=None.                #
+#                                                                             #
 #   Returns:    dict:   the parameter dictionary mapping each parameter       #
 #                       name to its bound value.                              #
 #                                                                             #
@@ -591,9 +603,12 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
 #       Normally nothing unless something is actually wrong with the call.    #
 #                                                                             #
 #   Description:                                                              #
-#       Read key=value pairs from a list of command line arguments,           #
-#       ignoring any arguments which don't contain a single unescaped '='     #
-#       and return a dictionary of these key, value pairs.                    #
+#       Read key=value pairs from a list of command fields (or command line   #
+#       arguments, warning of any arguments which don't contain exactly one   #
+#       unescaped '=' and return a dictionary of these key, value pairs.      #
+#       Note that if `file_name` or `line` are not provided, the default      #
+#       behaviour is to assume that the source of arguments is the command    #
+#       line `argv`. Error messages are formatted with this in mind.          #
 #                                                                             #
 ###############################################################################
 def parse_parameters(args, file_name="argv", line_no=0, line=None):
