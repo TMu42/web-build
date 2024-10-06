@@ -127,6 +127,18 @@ The following command types are available in template files:
                 similar to fragment files except that they may declare and
                 resolve parameters when they are parsed.
 
+4. `:TEMPLATE:[path/to]template;`
+           -    The :TEMPLATE command is specified with field 1 taking the
+                exact value `TEMPLATE`. Field 2 shall be the path to a
+                template file. All paths are relative to the read context of
+                the template file. This line shall be substituted by the
+                recursively parsed contents of the sourced template file at
+                `[path/to/]template`. If this file is not present, build.py
+                must try `[path/to/]template.template` and
+                `[path/to/]template.temp` in that order. This command will
+                fail if the file path cannot be resolved and may fail if the
+                file is not declared as a `::TEMPLATE;`.
+
 ### Fragment File Syntax
 
 Fragment files are plaintext literal files. When parsed they will produce 
