@@ -167,41 +167,86 @@ def parse_template(infile, outfile, line_no=0):
         except shared.ParseError:
             outfile.write(line)
         else:
-            cmd = command[1:-1]
-            
-            if cmd and cmd[0] == "" and not cmd[1:]:
-                pass
-            elif cmd and cmd[0] == "":
-                raise shared.ParseError(
-                        f"Template files may not contain declarations.",
-                        (infile.name, line_no, 1, line.strip()))
-            elif cmd and cmd[0] in shared.FILE_IDS and not cmd[1:]:
-                raise shared.ParseError(
-                        f"Bad :{cmd[0]} command, must specify source.",
-                        (infile.name, line_no, 1, line.strip()))
-            elif cmd and cmd[0] == shared.TEMPLATE_ID:
-                temfile = open_template(cmd[1])
-                
-                parse_template(temfile, outfile)
-            elif cmd and cmd[0] == shared.FRAGMENT_ID:
-                fragfile = fragment.open_fragment(cmd[1])
-                
-                fragment.parse_fragment(fragfile, outfile)
-            elif cmd and cmd[0] == shared.PARAMETRIC_ID:
-                parafile = parametric.open_parametric(cmd[1])
-                
-                params = parametric._parse_cli_parameters(cmd[2:])
-                
-                parametric.parse_parametric(parafile, outfile, params)
-            elif cmd:
-                raise shared.ParseError(
-                        f"Unrecognized command :{cmd[0]}.",
-                        (infile.name, line_no, 1, line.strip()))
-            else:
-                raise RuntimeError(
-                        f"  File \"{infile.name}\", line {line_no}\n"
-                        f"    {line.strip()}\n"
-                        f"  caused a zero-length command to parse.")
+            _parse_template_command(
+                        command, outfile, infile.name, line_no, line)
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _parse_template_command(                                              #
+#                   command, outfile, file_name="", line_no=0, line="")       #
+#                                                                             #
+#   Parameters:                                                               #
+#       command     -   list:   a valid parsed command, the output of         #
+#                               `shared.parse_command()` applied to a         #
+#                               line of a template file, required.            #
+#                                                                             #
+#       outfile     -   file:   an open output file, the file to write,       #
+#                               required.                                     #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="".                  #
+#                                                                             #
+#   Returns:    None.                                                         #
+#                                                                             #
+#   Raises:                                                                   #
+#       shared.ParseError   -   when the command is not valid, is missing     #
+#                               required fields or is not recognized in       #
+#                               template files.                               #
+#                                                                             #
+#       RuntimeError        -   when the command has no readable normal       #
+#                               fields.                                       #
+#                                                                             #
+#   Description:                                                              #
+#       Take a command from a template file, check its validity in the        #
+#       template file context and delegate to the appropriate function.       #
+#                                                                             #
+###############################################################################
+def _parse_template_command(
+                command, outfile, file_name="", line_no=0, line=""):
+    cmd = command[1:-1]
+    
+    if cmd and cmd[0] == "" and not cmd[1:]:                    # Comment
+        pass
+    elif cmd and cmd[0] == "":                                  # Declaration
+        raise shared.ParseError(
+                f"Template files may not contain declarations.",
+                (infile.name, line_no, 1, line.strip()))
+    elif cmd and cmd[0] in shared.FILE_IDS and not cmd[1:]:     # No Source
+        raise shared.ParseError(
+                f"Bad :{cmd[0]} command, must specify source.",
+                (infile.name, line_no, 1, line.strip()))
+    elif cmd and cmd[0] == shared.TEMPLATE_ID:          # Valid :TEMPLATE
+        temfile = open_template(cmd[1])
+        
+        parse_template(temfile, outfile)
+    elif cmd and cmd[0] == shared.FRAGMENT_ID:          # Valid :FRAGMENT
+        fragfile = fragment.open_fragment(cmd[1])
+        
+        fragment.parse_fragment(fragfile, outfile)
+    elif cmd and cmd[0] == shared.PARAMETRIC_ID:        # Valid :PARAMETRIC
+        parafile = parametric.open_parametric(cmd[1])
+        
+        params = parametric._parse_cli_parameters(cmd[2:])
+        
+        parametric.parse_parametric(parafile, outfile, params)
+    elif cmd:                                               # Other command
+        raise shared.ParseError(f"Unrecognized command :{cmd[0]}.",
+                                (infile.name, line_no, 1, line.strip()))
+    else:                                       # No command fields (somehow)
+        raise RuntimeError(f"  File \"{infile.name}\", line {line_no}\n"
+                           f"    {line.strip()}\n"
+                           f"  caused a zero-length command to parse.")
 
 
 ###############################################################################
