@@ -66,7 +66,7 @@ def main(args):
         except IndexError:
             outfile = sys.stdout
     
-    params = _parse_cli_parameters(args[3:])
+    params = parse_parameters(args[3:])
     
     parse_parametric(infile, outfile, params=params)
     
@@ -564,7 +564,8 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
     try:
         return params[param]
     except KeyError:
-        traceback.print_exception(shared.ParameterError(
+        traceback.print_exception(
+                        shared.ParameterError(
                                 f"Missing parameter '{param}', (default='')",
                                 (file_name, line_no, pos, line)))
         
@@ -576,7 +577,7 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       _parse_cli_parameters(args)                                           #
+#       parse_parameters(args)                                                #
 #                                                                             #
 #   Parameters:                                                               #
 #       args    -   list:   a list of command line arguments which may, or    #
@@ -595,7 +596,7 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
 #       and return a dictionary of these key, value pairs.                    #
 #                                                                             #
 ###############################################################################
-def _parse_cli_parameters(args):
+def parse_parameters(args, file_name="argv", line_no=0, line=None):
     params = {}
     
     for arg in args:
@@ -603,7 +604,7 @@ def _parse_cli_parameters(args):
         
         idx = 0
         
-        name_val = ["", ""]
+        name_val = [""]
         
         for c in arg:
             if escape:
@@ -614,11 +615,21 @@ def _parse_cli_parameters(args):
                 escape = True
             elif c == '=':
                 idx += 1
+                
+                name_val += [""]
             else:
                 name_val[idx] += c
         
         if idx == 1:
             params[name_val[0]] = name_val[1]
+        else:
+            if line == None:
+                line = ' '.join(args)
+            
+            traceback.print_exception(
+                            shared.ParameterError(
+                                f"Bad parameter binding field \"{arg}\".",
+                                (file_name, line_no, line.index(arg), line)))
     
     return params
 
