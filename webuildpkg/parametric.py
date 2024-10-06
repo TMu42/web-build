@@ -40,7 +40,8 @@ PARAMETRIC_EXTS = ["", ".parametric", ".param"]
 #       args        -   list:   the argument list as passed at the command    #
 #                               line (sys.argv). args[1] will specify the     #
 #                               input file and args[2] will specify the       #
-#                               output file, required.                        #
+#                               output file, additional arguments may         #
+#                               specify parameter bindings, required.         #
 #                                                                             #
 #   Returns:    int:    `EXIT_SUCCESS` or and error code.                     #
 #                                                                             #
