@@ -15,8 +15,12 @@ import sys
 
 try:
     from . import shared
+    from . import fragment
+    from . import parametric
 except ImportError:
     import shared
+    import fragment
+    import parametric
 
 
 ###############################################################################
@@ -158,7 +162,46 @@ def parse_template(infile, outfile, line_no=0):
     while (line := infile.readline()):
         line_no += 1
         
-        outfile.write(line)
+        try:
+            command = shared.parse_command(line, infile.name, line_no)
+        except shared.ParseError:
+            outfile.write(line)
+        else:
+            cmd = command[1:-1]
+            
+            if cmd and cmd[0] == "" and not cmd[1:]:
+                pass
+            elif cmd and cmd[0] == "":
+                raise shared.ParseError(
+                        f"Template files may not contain declarations.",
+                        (infile.name, line_no, 1, line.strip()))
+            elif cmd and cmd[0] in shared.FILE_IDS and not cmd[1:]:
+                raise shared.ParseError(
+                        f"Bad :{cmd[0]} command, must specify source.",
+                        (infile.name, line_no, 1, line.strip()))
+            elif cmd and cmd[0] == shared.TEMPLATE_ID:
+                temfile = open_template(cmd[1])
+                
+                parse_template(temfile, outfile)
+            elif cmd and cmd[0] == shared.FRAGMENT_ID:
+                fragfile = fragment.open_fragment(cmd[1])
+                
+                fragment.parse_fragment(fragfile, outfile)
+            elif cmd and cmd[0] == shared.PARAMETRIC_ID:
+                parafile = parametric.open_parametric(cmd[1])
+                
+                params = parametric._parse_cli_parameters(cmd[2:])
+                
+                parametric.parse_parametric(parafile, outfile, params)
+            elif cmd:
+                raise shared.ParseError(
+                        f"Unrecognized command :{cmd[0]}.",
+                        (infile.name, line_no, 1, line.strip()))
+            else:
+                raise RuntimeError(
+                        f"  File \"{infile.name}\", line {line_no}\n"
+                        f"    {line.strip()}\n"
+                        f"  caused a zero-length command to parse.")
 
 
 ###############################################################################

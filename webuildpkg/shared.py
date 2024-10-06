@@ -39,12 +39,19 @@ import sys
 #                               also the name (field 1) of the command for    #
 #                               invoking parametric files.                    #
 #                                                                             #
+#           FILE_IDS        -   A list of all valid file IDs, those           #
+#                               specified above.                              #
+#                                                                             #
 ###############################################################################
 STDIOS = ['-', '']
 
 TEMPLATE_ID   = "TEMPLATE"
 FRAGMENT_ID   = "FRAGMENT"
 PARAMETRIC_ID = "PARAMETRIC"
+
+FILE_IDS = [ TEMPLATE_ID,
+             FRAGMENT_ID,
+             PARAMETRIC_ID ]
 
 
 ###############################################################################

@@ -4,5 +4,5 @@
 <html>
   :PARAMETRIC:head-parametric:TITLE=Parametric HTML;
   
-  :PARAMETRIC:body-parametric:BG_COL=red:TITLE=Parametric HTML:DESCRIPT=parameterized template;
+  :PARAMETRIC:body-parametric:BG_COL=red:TITLE=Parametric HTML:DESCRIPT=parameterized template:EXTENDED=...;
 </html>
