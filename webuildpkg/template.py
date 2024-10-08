@@ -5,8 +5,31 @@
 ####                                                                       ####
 ####    File: `template.py`                                                ####
 ####                                                                       ####
-####    Module for handling and parsing template files of the              ####
-####    `web-build` utility file standard.                                 ####
+####    Summary: Module for handling and parsing template files of the     ####
+####             `web-build` utility file standard.                        ####
+####                                                                       ####
+####    Constants:                                                         ####
+####        TEMPLATE_EXTS   -   list:   Template file extension strs.      ####
+####                                                                       ####
+####    Methods:                                                           ####
+####        main(args)                                                     ####
+####                -   Main execution method, not called on import.       ####
+####                                                                       ####
+####        open_template(name, path)                                      ####
+####                -   Open a template file with a given name.            ####
+####                                                                       ####
+####        parse_template(infile, outfile, line_no)                       ####
+####                -   Parse an open template file.                       ####
+####                                                                       ####
+####        _path(f)                                                       ####
+####                -   Get a file object's path.                          ####
+####                                                                       ####
+####        _parse_template_command(command, outfile, path,                ####
+####                                file_name, line_no, line)              ####
+####                -   Parse a command from a template file.              ####
+####                                                                       ####
+####        _assert_template(command, file_name, line_no, line)            ####
+####                -   Check command is a template file declaration.      ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
