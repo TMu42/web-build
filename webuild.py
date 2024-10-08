@@ -9,6 +9,9 @@
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
+import traceback
+import sys
+
 import webuildpkg
 
 
@@ -53,8 +56,34 @@ def main(args):
         file_dec = webuildpkg.parse_command(dec_line, infile.name, line_no)
         
         file_type = file_dec[2]
-    except webuild.ParseError:###################
-    
+    except (webuild.ParseError, IndexError) as e:
+        traceback.print_exception(shared.ParseError(
+                                    f"Invalid file declaration '{dec_line}', "
+                                    f"assuming fragment file.",
+                                    (file_name, line_no, 1, line.strip())))
+        
+        outfile.write(dec_line)
+        
+        webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
+    else:
+        if file_type == webuildpkg.TEMPLATE_ID:
+            webuildpkg.template.parse_template(infile, outfile, line_no)
+        elif file_type == webuildpkg.FRAGMENT_ID:
+            webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
+        elif file_type == webuildpkg.PARAMETRIC_ID:
+            params = webuildpkg.parametric.parse_parameters(args[3:])
+            
+            webuildpkg.parametric.parse_parametric(
+                                            infile, outfile, params, line_no)
+        else:
+            traceback.print_exception(shared.ParseError(
+                                    f"Invalid file declaration '{dec_line}', "
+                                    f"assuming fragment file.",
+                                    (file_name, line_no, 1, line.strip())))
+            
+            outfile.write(dec_line)
+            
+            webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
     
     return 0
 
