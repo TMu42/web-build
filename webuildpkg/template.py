@@ -174,7 +174,34 @@ def parse_template(infile, outfile, line_no=0):
             outfile.write(line)
         else:
             _parse_template_command(
-                        command, outfile, infile.name, line_no, line)
+                command, outfile, _path(infile), infile.name, line_no, line)
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       _path(f)                                                              #
+#                                                                             #
+#   Parameters:                                                               #
+#       f       -   file:   a file from which to extract the path,            #
+#                           Required.                                         #
+#                                                                             #
+#   Returns:    string: the absolute or relative path to the file.            #
+#                                                                             #
+#   Raises:                                                                   #
+#       TypeError   -   when `f` is not a file, obviously.                    #
+#                                                                             #
+#   Description:                                                              #
+#       Extracts and returns the path component from the `name` property of   #
+#       a given file, this may be a relative or absolute path depending on    #
+#       how the file was opened. Will always be "" if the file was opened     #
+#       directly from the local directory or is a numbered or named file      #
+#       stream not opened from the file system tree.
+def _path(f):
+    try:
+        return '/'.join(f.name.split('/')[:-1])
+    except AttributeError:  # f.name is not a string
+        return ""
 
 
 ###############################################################################
@@ -190,6 +217,13 @@ def parse_template(infile, outfile, line_no=0):
 #                                                                             #
 #       outfile     -   file:   an open output file, the file to write,       #
 #                               required.                                     #
+#                                                                             #
+#       path        -   string: the path to the file being parsed, used to    #
+#                               resolve the names of sourced files for        #
+#                               :TEMPLATE, :FRAGMENT and :PARAMETRIC          #
+#                               commands, relative commands are related to    #
+#                               the Python working directory which is used    #
+#                               if None, "" or ommited, default=None.         #
 #                                                                             #
 #       file_name   -   string: the name of the file, only used for error     #
 #                               messages so may safely be omitted if this     #
@@ -219,7 +253,7 @@ def parse_template(infile, outfile, line_no=0):
 #                                                                             #
 ###############################################################################
 def _parse_template_command(
-                command, outfile, file_name="", line_no=0, line=""):
+            command, outfile, path=None, file_name="", line_no=0, line=""):
     cmd = command[1:-1]
     
     if cmd and cmd[0] == "" and not cmd[1:]:                    # Comment
@@ -233,15 +267,15 @@ def _parse_template_command(
                 f"Bad :{cmd[0]} command, must specify source.",
                 (infile.name, line_no, 1, line.strip()))
     elif cmd and cmd[0] == shared.TEMPLATE_ID:          # Valid :TEMPLATE
-        temfile = open_template(cmd[1])
+        temfile = open_template(cmd[1], path)
         
         parse_template(temfile, outfile)
     elif cmd and cmd[0] == shared.FRAGMENT_ID:          # Valid :FRAGMENT
-        fragfile = fragment.open_fragment(cmd[1])
+        fragfile = fragment.open_fragment(cmd[1], path)
         
         fragment.parse_fragment(fragfile, outfile)
     elif cmd and cmd[0] == shared.PARAMETRIC_ID:        # Valid :PARAMETRIC
-        parafile = parametric.open_parametric(cmd[1])
+        parafile = parametric.open_parametric(cmd[1], path)
         
         params = parametric.parse_parameters(cmd[2:])
         
