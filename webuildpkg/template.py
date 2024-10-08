@@ -196,7 +196,9 @@ def parse_template(infile, outfile, line_no=0):
 #       a given file, this may be a relative or absolute path depending on    #
 #       how the file was opened. Will always be "" if the file was opened     #
 #       directly from the local directory or is a numbered or named file      #
-#       stream not opened from the file system tree.
+#       stream not opened from the file system tree.                          #
+#                                                                             #
+###############################################################################
 def _path(f):
     try:
         return '/'.join(f.name.split('/')[:-1])

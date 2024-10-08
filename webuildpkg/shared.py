@@ -3,10 +3,32 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `shared.py`                                                  ####
+####    File: `shared.py`.                                                 ####
 ####                                                                       ####
-####    Shared properties for package `webuildpkg` which provides file     ####
-####    parsing and other utilities for handling `web-build` files         ####
+####    Summary: Shared properties for package `webuildpkg` which          ####
+####             provides file parsing and other utilities for handling    ####
+####             `web-build` files.                                        ####
+####                                                                       ####
+####    Constants:                                                         ####
+####        STDIOS          -   list:   STDIN/OUT indicator strings.       ####
+####        TEMPLATE_ID     -   string: Indicates template file.           ####
+####        FRAGMENT_ID     -   string: Indicates fragment file.           ####
+####        PARAMETRIC_ID   -   string: Indicates parametric file.         ####
+####        FILE_IDS        -   list:   The file IDs above in a list.      ####
+####                                                                       ####
+####    Classes:                                                           ####
+####        ParseError      -   Exception for file syntax errors.          ####
+####        ParameterError  -   Exception for missing parameter errors.    ####
+####                                                                       ####
+####    Methods:                                                           ####
+####        open_output(name)                                              ####
+####                -   Provide an output file for a given name.           ####
+####                                                                       ####
+####        parse_shebang(infile)                                          ####
+####                -   Get the first file line, ignoring a shebang.       ####
+####                                                                       ####
+####        parse_command(line, file_name, line_no)                        ####
+####                -   Convert a file line into a canonical command.      ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
