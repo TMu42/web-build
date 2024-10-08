@@ -86,6 +86,9 @@ def main(args):
 #       name        -   string: the file name or handle to open as an input   #
 #                               file, required.                               #
 #                                                                             #
+#       path        -   string: the context path for name resolution,         #
+#                               default=None.                                 #
+#                                                                             #
 #   Returns:    file:   an open file which can be read from.                  #
 #                                                                             #
 #   Raises:                                                                   #

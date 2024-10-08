@@ -79,11 +79,14 @@ def main(args):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       open_parametric(name)                                                 #
+#       open_parametric(name, path=None)                                      #
 #                                                                             #
 #   Parameters:                                                               #
 #       name        -   string: the file name or handle to open as an input   #
 #                               file, required.                               #
+#                                                                             #
+#       path        -   string: the context path for name resolution,         #
+#                               default=None.                                 #
 #                                                                             #
 #   Returns:    file:   an open file which can be read from.                  #
 #                                                                             #
