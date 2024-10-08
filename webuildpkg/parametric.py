@@ -5,8 +5,45 @@
 ####                                                                       ####
 ####    File: `parametric.py`                                              ####
 ####                                                                       ####
-####    Module for handling and parsing parametric files of the            ####
-####    `web-build` utility file standard.                                 ####
+####    Summary: Module for handling and parsing parametric files of       ####
+####             the `web-build` utility file standard.                    ####
+####                                                                       ####
+####    Constants:                                                         ####
+####        PARAMETRIC_EXTS -   list:   Parametric file extension strs.    ####
+####                                                                       ####
+####    Methods:                                                           ####
+####        main(args)                                                     ####
+####                -   Main execution method, not called on import.       ####
+####                                                                       ####
+####        open_parametric(name, path)                                    ####
+####                -   Open a parametric file with a given name.          ####
+####                                                                       ####
+####        parse_parametric(infile, outfile, params, line_no)             ####
+####                -   Parse an open parametric file.                     ####
+####                                                                       ####
+####        parse_parameters(args, file_name, line_no, line)               ####
+####                -   Parse parameters from a command or CLI list.       ####
+####                                                                       ####
+####        _param(command, params, file_name, line_no, line)              ####
+####                -   Apply a parameter declaration.                     ####
+####                                                                       ####
+####        _assert_parametric(command, file_name, line_no, line)          ####
+####                -   Check command is a parametric file declaration.    ####
+####                                                                       ####
+####        _parse_parametric_line(line, params, file_name, line_no)       ####
+####                -   Parse a (non-command) parametric file line.        ####
+####                                                                       ####
+####        _escape_state_machine(c, escape)                               ####
+####                -   State machine to track escape characters.          ####
+####                                                                       ####
+####        _macro_state_machine(                                          ####
+####                        d, e, in_macro, transition, out_line, macro    ####
+####                        params, file_name, line_no, pos, line)         ####
+####                -   State machine to track parameter tags.             ####
+####                                                                       ####
+####        _get_parameter(params, param,                                  ####
+####                       file_name, line_no, pos, line)                  ####
+####                -   Retrive a bound parameter.                         ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
@@ -184,6 +221,82 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
                 _parse_parametric_line(line, params, infile.name, line_no))
         except ValueError as e:
             traceback.print_exception(e)
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       parse_parameters(args)                                                #
+#                                                                             #
+#   Parameters:                                                               #
+#       args    -   list:   a list of command line arguments which may, or    #
+#                           may not include parameter value bindings,         #
+#                           required.                                         #
+#                                                                             #
+#       file_name   -   string: the name of the file, only used for error     #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default="argv".              #
+#                                                                             #
+#       line_no     -   int:    the line number from the file, only used      #
+#                               error messages so may safely be omitted if    #
+#                               this is not required, default=0.              #
+#                                                                             #
+#       line        -   string: the line from the file, only used for error   #
+#                               messages so may safely be omitted if this     #
+#                               is not required, default=None.                #
+#                                                                             #
+#   Returns:    dict:   the parameter dictionary mapping each parameter       #
+#                       name to its bound value.                              #
+#                                                                             #
+#   Raises:                                                                   #
+#       Normally nothing unless something is actually wrong with the call.    #
+#                                                                             #
+#   Description:                                                              #
+#       Read key=value pairs from a list of command fields (or command line   #
+#       arguments, warning of any arguments which don't contain exactly one   #
+#       unescaped '=' and return a dictionary of these key, value pairs.      #
+#       Note that if `file_name` or `line` are not provided, the default      #
+#       behaviour is to assume that the source of arguments is the command    #
+#       line `argv`. Error messages are formatted with this in mind.          #
+#                                                                             #
+###############################################################################
+def parse_parameters(args, file_name="argv", line_no=0, line=None):
+    params = {}
+    
+    for arg in args:
+        escape = False
+        
+        idx = 0
+        
+        name_val = [""]
+        
+        for c in arg:
+            if escape:
+                name_val[idx] += c
+                
+                escape = False
+            elif c == '\\':
+                escape = True
+            elif c == '=':
+                idx += 1
+                
+                name_val += [""]
+            else:
+                name_val[idx] += c
+        
+        if idx == 1:
+            params[name_val[0]] = name_val[1]
+        else:
+            if line == None:
+                line = ' '.join(args)
+            
+            traceback.print_exception(
+                            shared.ParameterError(
+                                f"Bad parameter binding field \"{arg}\".",
+                                (file_name, line_no, line.index(arg), line)))
+    
+    return params
+
 
 ###############################################################################
 #                                                                             #
@@ -578,81 +691,6 @@ def _get_parameter(params, param, file_name="", line_no=0, pos=1, line=None):
         params[param] = ""
         
         return ""
-
-
-###############################################################################
-#                                                                             #
-#   Method:                                                                   #
-#       parse_parameters(args)                                                #
-#                                                                             #
-#   Parameters:                                                               #
-#       args    -   list:   a list of command line arguments which may, or    #
-#                           may not include parameter value bindings,         #
-#                           required.                                         #
-#                                                                             #
-#       file_name   -   string: the name of the file, only used for error     #
-#                               messages so may safely be omitted if this     #
-#                               is not required, default="argv".              #
-#                                                                             #
-#       line_no     -   int:    the line number from the file, only used      #
-#                               error messages so may safely be omitted if    #
-#                               this is not required, default=0.              #
-#                                                                             #
-#       line        -   string: the line from the file, only used for error   #
-#                               messages so may safely be omitted if this     #
-#                               is not required, default=None.                #
-#                                                                             #
-#   Returns:    dict:   the parameter dictionary mapping each parameter       #
-#                       name to its bound value.                              #
-#                                                                             #
-#   Raises:                                                                   #
-#       Normally nothing unless something is actually wrong with the call.    #
-#                                                                             #
-#   Description:                                                              #
-#       Read key=value pairs from a list of command fields (or command line   #
-#       arguments, warning of any arguments which don't contain exactly one   #
-#       unescaped '=' and return a dictionary of these key, value pairs.      #
-#       Note that if `file_name` or `line` are not provided, the default      #
-#       behaviour is to assume that the source of arguments is the command    #
-#       line `argv`. Error messages are formatted with this in mind.          #
-#                                                                             #
-###############################################################################
-def parse_parameters(args, file_name="argv", line_no=0, line=None):
-    params = {}
-    
-    for arg in args:
-        escape = False
-        
-        idx = 0
-        
-        name_val = [""]
-        
-        for c in arg:
-            if escape:
-                name_val[idx] += c
-                
-                escape = False
-            elif c == '\\':
-                escape = True
-            elif c == '=':
-                idx += 1
-                
-                name_val += [""]
-            else:
-                name_val[idx] += c
-        
-        if idx == 1:
-            params[name_val[0]] = name_val[1]
-        else:
-            if line == None:
-                line = ' '.join(args)
-            
-            traceback.print_exception(
-                            shared.ParameterError(
-                                f"Bad parameter binding field \"{arg}\".",
-                                (file_name, line_no, line.index(arg), line)))
-    
-    return params
 
 
 ###############################################################################

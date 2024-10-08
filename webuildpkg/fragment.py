@@ -22,7 +22,7 @@
 ####                -   Parse an open fragment file.                       ####
 ####                                                                       ####
 ####        _assert_fragment(command, file_name, line_no, line)            ####
-####                -   Check a command is a fragment file declaration.    ####
+####                -   Check command is a fragment file declaration.      ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
