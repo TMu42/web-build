@@ -5,8 +5,24 @@
 ####                                                                       ####
 ####    File: `fragment.py`                                                ####
 ####                                                                       ####
-####    Module for handling and parsing fragment files of the              ####
-####    `web-build` utility file standard.                                 ####
+####    Summary: Module for handling and parsing fragment files of the     ####
+####             `web-build` utility file standard.                        ####
+####                                                                       ####
+####    Constants:                                                         ####
+####        FRAGMENT_EXTS   -   list:   Fragment file extension strs.      ####
+####                                                                       ####
+####    Methods:                                                           ####
+####        main(args)                                                     ####
+####                -   Main execution method, not called on import.       ####
+####                                                                       ####
+####        open_fragment(name, path)                                      ####
+####                -   Open a fragment file with a given name.            ####
+####                                                                       ####
+####        parse_fragment(infile, outfile, line_no)                       ####
+####                -   Parse an open fragment file.                       ####
+####                                                                       ####
+####        _assert_fragment(command, file_name, line_no, line)            ####
+####                -   Check a command is a fragment file declaration.    ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
