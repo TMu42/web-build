@@ -16,7 +16,35 @@ OR when installed:
                       produce one or more output files (see syntax below).
     
     OUTPUT_FILE   -   the file to write output to.
-    
+
+## File Types
+
+### Blueprint
+
+A blueprint or project outline, listing one or more other files and defining
+how they should be handled and where output should be written. Blueprints may
+invoke other blueprints, define the outputs for templates, parametrics and
+fragments. Blueprints are essentially build scripts which define all the
+web-build operations needed to build a project (or part thereof) from small,
+managable chunks.
+
+### Template
+
+A template for a single file, containing direct plain text to output and
+invocations to substitute the parsed contents of other web-build files.
+Templates may invoke and insert other templates as well as fragments and
+parametrics. Templates are essentially a markup outline of a particular
+file.
+
+### Fragment
+
+A reusable chunk of literal, plain text content. Fragments are used to
+define small chunks of code which can be substituted verbatim into multiple
+template files. Fragments are essentially literal macros which can be invoked
+by other files.
+
+### Parametric
+
 ## Template File Syntax
 
 Any plaintext file could be a valid template file - as long as it commences
