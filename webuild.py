@@ -12,6 +12,9 @@
 ####        main(args)                                                     ####
 ####                -   Main execution method, not called on import.       ####
 ####                                                                       ####
+####        open_files(args)                                               ####
+####                -   Setup requested files for input and output.        ####
+####                                                                       ####
 ###############################################################################
 ###############################################################################
 import traceback
@@ -44,24 +47,20 @@ import webuildpkg
 #                                                                             #
 ###############################################################################
 def main(args):
-    try:
-        infile = open(args[1], 'r')
-    except IndexError:
-        infile  = sys.stdin
-        outfile = sys.stdout
-    else:
-        try:
-            outfile = webuildpkg.open_output(args[2])
-        except IndexError:
-            outfile = sys.stdout
+    infile, outfile = open_files(args[1:])
     
-    dec_line, line_no = webuildpkg.parse_shebang(infile)
+    file_type, line_no = webuildpkg.get_file_type(infile, outfile)
     
-    try:
-        file_dec = webuildpkg.parse_command(dec_line, infile.name, line_no)
+    if file_type == webuildpkg.TEMPLATE_ID:
+        webuildpkg.template.parse_template(infile, outfile, line_no)
+    elif file_type == webuildpkg.FRAGMENT_ID:
+        webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
+    elif file_type == webuildpkg.PARAMETRIC_ID:
+        params = webuildpkg.parametric.parse_parameters(args[3:])
         
-        file_type = file_dec[2]
-    except (webuild.ParseError, IndexError) as e:
+        webuildpkg.parametric.parse_parametric(
+                                            infile, outfile, params, line_no)
+    else:
         traceback.print_exception(shared.ParseError(
                                     f"Invalid file declaration '{dec_line}', "
                                     f"assuming fragment file.",
@@ -70,27 +69,42 @@ def main(args):
         outfile.write(dec_line)
         
         webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
-    else:
-        if file_type == webuildpkg.TEMPLATE_ID:
-            webuildpkg.template.parse_template(infile, outfile, line_no)
-        elif file_type == webuildpkg.FRAGMENT_ID:
-            webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
-        elif file_type == webuildpkg.PARAMETRIC_ID:
-            params = webuildpkg.parametric.parse_parameters(args[3:])
-            
-            webuildpkg.parametric.parse_parametric(
-                                            infile, outfile, params, line_no)
-        else:
-            traceback.print_exception(shared.ParseError(
-                                    f"Invalid file declaration '{dec_line}', "
-                                    f"assuming fragment file.",
-                                    (file_name, line_no, 1, line.strip())))
-            
-            outfile.write(dec_line)
-            
-            webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
     
     return 0
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       open_files(args)                                                      #
+#                                                                             #
+#   Parameters:                                                               #
+#       args        -   list:   the argument list as passed at the command    #
+#                               line (sys.argv), ommiting the programme       #
+#                               name. `args[0]` will specify the input file   #
+#                               and args[1] will specify the output file.     #
+#                                                                             #
+#   Returns:    file, file: resolved input and output files, in that order.   #
+#                                                                             #
+#   Raises:                                                                   #
+#       Hopefully nothing...                                                  #
+#                                                                             #
+#   Description:                                                              #
+#       Open and return the input and output files (or return stdio           #
+#       streams) based on command line arguments.                             #
+#                                                                             #
+###############################################################################
+def open_files(args):
+    infile  = sys.stdin
+    outfile = sys.stdout
+    
+    try:
+        infile  = webuildpkg.open_input( args[0])
+        outfile = webuildpkg.open_output(args[1])
+    except (IndexError, FileNotFoundError):
+        pass
+    
+    return infile, outfile
 
 
 ###############################################################################

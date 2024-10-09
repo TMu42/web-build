@@ -25,6 +25,12 @@
 ####        open_output(name)                                              ####
 ####                -   Provide an output file for a given name.           ####
 ####                                                                       ####
+####        open_input(name)                                               ####
+####                -   Provide an input file for a given name.            ####
+####                                                                       ####
+####        get_file_type(infile, outfile)                                 ####
+####                -   Get the file type of a web-build file.             ####
+####                                                                       ####
 ####        parse_shebang(infile)                                          ####
 ####                -   Get the first file line, ignoring a shebang.       ####
 ####                                                                       ####
@@ -117,9 +123,8 @@ class ParameterError(SyntaxError): pass
 #                                                                             #
 #   Description:                                                              #
 #       Opens and returns a writable file with the provided `name` unless     #
-#       `name` indicates that the standard stream should be used, i.e.        #
-#       `name` is either "" or "-". If the standard stream is indicated,      #
-#       sys.stdout is returned.                                               #
+#       `name` indicates that the stdout should be used, i.e. `name` is '-'   #
+#       or "<stdout>", in which case sys.stdout is returned.                  #
 #                                                                             #
 ###############################################################################
 def open_output(name):
@@ -127,6 +132,88 @@ def open_output(name):
         return sys.stdout
     
     return open(name, 'w')
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       open_input(name)                                                      #
+#                                                                             #
+#   Parameters:                                                               #
+#       name        -   string: the file name or handle to open as an input   #
+#                               file, required.                               #
+#                                                                             #
+#   Returns:    file:   an open file which can be read from.                  #
+#                                                                             #
+#   Raises:                                                                   #
+#       Anything that builtin `open(name, 'r')` might raise.                  #
+#                                                                             #
+#   Description:                                                              #
+#       Opens and returns a readable file with the provided `name` unless     #
+#       `name` indicates that the stdin should be used, i.e. `name` is '-'    #
+#       or "<stdin>", in which case sys.stdin is returned.                    #
+#                                                                             #
+###############################################################################
+def open_input(name):
+    if name in STDINS:
+        return sys.stdin
+    
+    return open(name, 'r')
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       get_file_type(infile, outfile=None)                                   #
+#                                                                             #
+#   Parameters:                                                               #
+#       infile      -   file:   the open input file to check the file type    #
+#                               of, required.                                 #
+#                                                                             #
+#       outfile:    -   file:   the open output file to write any             #
+#                               pass-through to, default=None.                #
+#                                                                             #
+#   Returns:    string: the file identifier extracted from the file           #
+#                       declaration line if present and valid, otherwise      #
+#                       the default (`FRAGMENT_ID`).                          #
+#                                                                             #
+#               int:    the line number of the last line parsed by this       #
+#                       method.                                               #
+#                                                                             #
+#   Raises:                                                                   #
+#       Usually nothing unless there is a problem with the call.              #
+#                                                                             #
+#   Description:                                                              #
+#       Extracts and returns the file identifier from an open input file if   #
+#       it has a valid web-build header, otherwise, assumes it is a           #
+#       fragment file and echos the read line to outfile (if not None),       #
+#       returning the fragment file identifier `FRAGMENT_ID`.                 #
+#                                                                             #
+###############################################################################
+def get_file_type(infile, outfile=None):
+    dec_line, line_no = parse_shebang(infile)
+    
+    try:
+        file_dec = parse_command(dec_line, infile.name, line_no)
+        
+        file_type = file_dec[2]
+    except (webuild.ParseError, IndexError) as e:
+        valid = False
+    else:
+        valid = True
+    
+    if (not valid) or file_type not in FILE_IDS:
+        traceback.print_exception(shared.ParseError(
+                                    f"Invalid file declaration '{dec_line}', "
+                                    f"assuming fragment file.",
+                                    (infile.name, line_no, 1, line.strip())))
+        
+        if outfile is not None:
+            outfile.write(dec_line)
+        
+        file_type = FRAGMENT_ID
+    
+    return file_type, line_no
 
 
 ###############################################################################
