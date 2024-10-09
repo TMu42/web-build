@@ -3,7 +3,7 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `parametric.py`                                              ####
+####    File: `parametric.py`.                                             ####
 ####                                                                       ####
 ####    Summary: Module for handling and parsing parametric files of       ####
 ####             the `web-build` utility file standard.                    ####

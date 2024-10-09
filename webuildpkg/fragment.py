@@ -3,7 +3,7 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `fragment.py`                                                ####
+####    File: `fragment.py`.                                               ####
 ####                                                                       ####
 ####    Summary: Module for handling and parsing fragment files of the     ####
 ####             `web-build` utility file standard.                        ####
