@@ -4,7 +4,7 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `webuild.py`                                                 ####
+####    File: `webuild.py`.                                                ####
 ####                                                                       ####
 ####    Summary: Command line tool for the `web-build` package.            ####
 ####                                                                       ####

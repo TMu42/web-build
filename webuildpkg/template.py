@@ -3,7 +3,7 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `template.py`                                                ####
+####    File: `template.py`.                                               ####
 ####                                                                       ####
 ####    Summary: Module for handling and parsing template files of the     ####
 ####             `web-build` utility file standard.                        ####
