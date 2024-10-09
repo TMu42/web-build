@@ -39,6 +39,7 @@
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
+import traceback
 import sys
 
 
@@ -191,25 +192,25 @@ def open_input(name):
 #                                                                             #
 ###############################################################################
 def get_file_type(infile, outfile=None):
-    dec_line, line_no = parse_shebang(infile)
+    line, line_no = parse_shebang(infile)
     
     try:
-        file_dec = parse_command(dec_line, infile.name, line_no)
+        file_dec = parse_command(line, infile.name, line_no)
         
         file_type = file_dec[2]
-    except (webuild.ParseError, IndexError) as e:
+    except (ParseError, IndexError) as e:
         valid = False
     else:
         valid = True
     
     if (not valid) or file_type not in FILE_IDS:
-        traceback.print_exception(shared.ParseError(
-                                    f"Invalid file declaration '{dec_line}', "
+        traceback.print_exception(ParseError(
+                                    f"Invalid file declaration '{line}', "
                                     f"assuming fragment file.",
                                     (infile.name, line_no, 1, line.strip())))
         
         if outfile is not None:
-            outfile.write(dec_line)
+            outfile.write(line)
         
         file_type = FRAGMENT_ID
     
