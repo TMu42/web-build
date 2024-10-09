@@ -12,6 +12,7 @@
 ####    Constants:                                                         ####
 ####        STDINS          -   list:   STDIN indicator strings.           ####
 ####        STDOUTS         -   list:   STDOUT indicator strings.          ####
+####        BLUEPRINT_ID    -   string: Indicates blueprint file.          ####
 ####        TEMPLATE_ID     -   string: Indicates template file.           ####
 ####        FRAGMENT_ID     -   string: Indicates fragment file.           ####
 ####        PARAMETRIC_ID   -   string: Indicates parametric file.         ####
@@ -54,6 +55,12 @@ import sys
 #                               input stream should be mapped to stdout,      #
 #                               rather than to a regular file.                #
 #                                                                             #
+#           BLUEPRINT_ID    -   The file and command ID string for            #
+#                               blueprint files. This appears in the          #
+#                               declaration command (file identifier) and     #
+#                               also the name (field 1) of the command for    #
+#                               invoking blueprint files.                     #
+#                                                                             #
 #           TEMPLATE_ID     -   The file and command ID string for template   #
 #                               files. This appears in the declaration        #
 #                               command (file identifier) and also the        #
@@ -79,11 +86,13 @@ import sys
 STDINS  = ['-', "<stdin>"]
 STDOUTS = ['-', "<stdout>"]
 
+BLUEPRINT_ID  = "BLUEPRINT"
 TEMPLATE_ID   = "TEMPLATE"
 FRAGMENT_ID   = "FRAGMENT"
 PARAMETRIC_ID = "PARAMETRIC"
 
-FILE_IDS = [ TEMPLATE_ID,
+FILE_IDS = [ BLUEPRINT_ID,
+             TEMPLATE_ID,
              FRAGMENT_ID,
              PARAMETRIC_ID ]
 
