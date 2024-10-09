@@ -10,7 +10,8 @@
 ####             `web-build` files.                                        ####
 ####                                                                       ####
 ####    Constants:                                                         ####
-####        STDIOS          -   list:   STDIN/OUT indicator strings.       ####
+####        STDINS          -   list:   STDIN indicator strings.           ####
+####        STDOUTS         -   list:   STDOUT indicator strings.          ####
 ####        TEMPLATE_ID     -   string: Indicates template file.           ####
 ####        FRAGMENT_ID     -   string: Indicates fragment file.           ####
 ####        PARAMETRIC_ID   -   string: Indicates parametric file.         ####
@@ -38,10 +39,13 @@ import sys
 ###############################################################################
 #                                                                             #
 #   Shared Constants:                                                         #
-#           STDIOS          -   A list of strings which indicate that an      #
-#                               input or output stream should be mapped to    #
-#                               stdin or stdout respectively, rather than     #
-#                               to a regular file.                            #
+#           STDINS          -   A list of strings which indicate that an      #
+#                               input stream should be mapped to stdin,       #
+#                               rather than to a regular file.                #
+#                                                                             #
+#           STDOUTS         -   A list of strings which indicate that an      #
+#                               input stream should be mapped to stdout,      #
+#                               rather than to a regular file.                #
 #                                                                             #
 #           TEMPLATE_ID     -   The file and command ID string for template   #
 #                               files. This appears in the declaration        #
@@ -65,7 +69,8 @@ import sys
 #                               specified above.                              #
 #                                                                             #
 ###############################################################################
-STDIOS = ['-', '']
+STDINS  = ['-', "<stdin>"]
+STDOUTS = ['-', "<stdout>"]
 
 TEMPLATE_ID   = "TEMPLATE"
 FRAGMENT_ID   = "FRAGMENT"
@@ -118,7 +123,7 @@ class ParameterError(SyntaxError): pass
 #                                                                             #
 ###############################################################################
 def open_output(name):
-    if name in STDIOS:
+    if name in STDOUTS:
         return sys.stdout
     
     return open(name, 'w')

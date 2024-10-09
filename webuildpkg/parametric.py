@@ -143,7 +143,7 @@ def main(args):
 #                                                                             #
 ###############################################################################
 def open_parametric(name, path=None):
-    if name in shared.STDIOS:
+    if name in shared.STDINS:
         return sys.stdin
     
     if path and name[0] != '/':
