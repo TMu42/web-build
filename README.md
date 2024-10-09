@@ -1,11 +1,12 @@
-# Build
+# Web Build (web-build) `webuild`
 
 ## Usage
 
     python webuild.py [INPUT_FILE [OUTPUT_FILE]]
-    ./webuild.py [INPUT_FILE [OUTPUT_FILE]]
+OR:
 
-or when installed:
+    ./webuild.py [INPUT_FILE [OUTPUT_FILE]]
+OR when installed:
 
     webuild [INPUT_FILE [OUTPUT_FILE]]
 
