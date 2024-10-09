@@ -2,13 +2,19 @@
 
 ## Usage
 
-    build.py TEMPLATE_FILE [OUTPUT_FILE]
+    python webuild.py [INPUT_FILE [OUTPUT_FILE]]
+    ./webuild.py [INPUT_FILE [OUTPUT_FILE]]
+
+or when installed:
+
+    webuild [INPUT_FILE [OUTPUT_FILE]]
 
 ### Parameters
 
-    TEMPLATE_FILE   -   the template from which to produce output file (see syntax below).
+    INPUT_FILE    -   a blueprint, template, fragment or parametric file, the file from which to
+                      produce one or more output files (see syntax below).
     
-    OUTPUT_FILE     -   the file to write output to.
+    OUTPUT_FILE   -   the file to write output to.
     
 ## Template File Syntax
 
