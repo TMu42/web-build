@@ -19,6 +19,30 @@ OR when installed:
 
 ## File Types
 
+### Overview
+
+                                           Blueprint
+                                               |
+        +------------+------------+------------+------------+------------+------------+
+        |            |            |            |            |            |            |
+    Blueprint     Blueprint    Template     Template     Parametric   Parametric   Fragment
+                                               |
+        +------------+------------+------------+------------+------------+------------+
+        |            |            |            |            |            |            |
+    Template     Parametric   Parametric    Template     Fragment     Fragment    Plain Text
+                     |                                                   |
+        +------------+------------+------------+            +------------+------------+
+        |            |            |            |            |            |            |
+    Parameter    Parameter    Plain Text   Plain Text   Plain Text   Plain Text    Plain Text
+
+Blueprints are overall project plans, they may contain references to any
+other file type. Templates describe the structure of individual project files
+and may contain references to any other file types except blueprints.
+Parametrics and fragments are reusable components of files which are used
+primarily by templates to construct larger files with common or recuring
+elements. Fragments are constant elements whilst parametrics may contain
+variables (parameters).
+
 ### Blueprint
 
 A blueprint or project outline, listing one or more other files and defining
@@ -44,6 +68,11 @@ template files. Fragments are essentially literal macros which can be invoked
 by other files.
 
 ### Parametric
+
+A reusable chunk of content with parametric components. Parametrics are used
+to define small chunks of code with variable components which can be
+parametrically substituted into multiple template files. Parametrics are
+essentially parametric macros which can be invoked by other files.
 
 ## Template File Syntax
 
