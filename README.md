@@ -311,138 +311,61 @@ will be executed and replaced by their output (if any). Commands should be one
 of `:TEMPLATE:name;`, `:FRAGMENT:name;` or
 `:PARAMETRIC:name[::param_1=val_1[:param_2=val_2[...]]];`.
 
-It is recomended that template files use the file extension `.template` or
-`.temp` however this is not mandated. A consitant style for file extensions
+It is recomended that template files use the file extension ".template" or
+".temp" however this is not mandated. A consitant style for file extensions
 should be used within a project.
 
-### General Template Syntax
+## Fragment File Syntax
 
-The following syntax is available throughout the template file:
+Fragment files are third level project files in the web-build hierachy.
+They are used to describe and define basic and common components of files.
+Fragment files are parsed to produce a contiguous output which can be
+written to a single file but is usually not a complete file in itself. They
+are entirely plain text driven.
 
-1. Any line commencing with the `\` character (preceeded only by whitespace)
-   is treated as a literal line, the `\` is stripped however the whitespace
-   (if any) is preserved.
-   
-   `    \:This is a line commencing with four spaces and a colon.`<br>
-   --><br>
-   `    :This is a line commencing with four spaces and a colon.`<br><br>
-   
-   `\\This is a line commencing with a back slash.`<br>
-   --><br>
-   `\This is a line commencing with a backslash.`<br><br>
-   
-   `\\:This is a line commencing with a back slash and a colon.`<br>
-   --><br>
-   `\:This is a line commencing with a back slash and a colon.`<br>
+A fragment file is declared with `::FRAGMENT;` as the first line (or the
+second line if the first line is shebang). Each line after the declaration is
+parsed verbatim to the output. Fragment files are the only web-build files
+that have no special syntax, do not process commands and do not handle
+escapes. Why you should choose to execute a fragment file with a shebang —
+given that the output will merely be identity — is your business.
+Nevertheless, this functionality has been provided for completeness.
 
-   Note that the `\` character is a general escape character throughout the
-   `build.py` syntax and must be escaped (`\\`) wherever it is needed in an
-   output. The character directly following a `\` will be output as literal,
-   whether or not it has a special meaning. There are no currently supported
-   escape sequences for special or non-printing characters.
-   
-3. Any line commencing with the `:` character (preceeded only by whitespace)
-   is treated as a command. If an output line needs to commence with a `:`, it
-   should be escaped with a `\`. Commands must reside on a single line and
-   consume the entire line. Commands must be closed with the `;` character.
-   Anything following the first `;` on a command line is ignored and this
-   space should be used for comments. An empty command `:;` can be used to
-   insert a comment where no command is issued. The whitespace indent
-   preceeding a command is ignored and context indentation must be generated
-   by the command or otherwise specified.
-   
-   `:;This line is just a comment, nothing will be echoed to the output.`
-    
-   `    :COMMAND;This line will be replaced by the output of "COMMAND".`
+It is recomended that fragment files use the file extension ".fragment" or
+".frag" however this is not mandated. A consitant style for file extensions
+should be used within a project.
 
-   Note, the template file writer/user is expected to ensure that all commands
-   are valid.
+## Parametric File Syntax
 
-4. Any line whose first (non-whitespace) character is not the `:` character
-   will be echoed to the output after escapes have been processes.
+Parametric files are also third level project files in the web-build hierachy.
+They are also used to describe and define basic and common components of files
+however they are more flexible than fragment files and therefore require more
+complex syntax. Parametric files are parsed to produce a contiguous output
+which can be written to a single file but is usually not a complete file in
+itself. They are mostly file text driven.
 
-### Template Command Syntax
+A parametric file is declared with `::PARAMETRIC;` as the first line (or the
+second line if the first line is shebang). Each line after the declaration is
+either a command or file text. The only valid commands in parametric files are
+parameter declarations which should (but are not mandated to) be at the head
+of the file. The behaviour of parameter declarations which occur after the
+first instance of the parameter in the file will be disappointing. Parameter
+declarations are of the following structure:
+`::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT]]`. The parameter declaration
+contains a number of standard components:
+1. As with all declarations, Field_1 mush be empty.
+2. Field_2 shall be exactly `PARAM` so the declaration begins `::PARAM`.
+3. Field_3 specifies the parameter name. being declared. `PARAM_NAME`
+   should exactly match the `PARAM_NAME` from the `<[PARAM_NAME]>` tokens
+   in the file body.
+4. Field_4 specifies whether the parameter is required at invocation.
+   `REQUIRED` is either a boolean (True|False) or empty. This value may be
+   implied (or even overwriten) by the next field.
+5. Field_5 specifies the default value to bind to `PARAM_NAME` if not
+   provided by the invocation. A non-empty value of `DEFAULT_VAL` may
+   modify the `REQUIRED` value or interpretation, see below.
 
-Commands commence with a colon and are composed of a series of fields,
-delimeted by further colons. The final field in a command must be terminated
-with a semicolon. Neither the colon, nor the semicolon should occur unescaped
-within a command other than as the delimeter and terminator. The general form
-of commands is:
-
-    :FIELD_1[:FIELD_2[:FIELD_3[...]];
-
-where any field may be empty. The number of fields is not limited but will
-depend upon the type of command being issued.
-
-The following command types are available in template files:
-
-1. `::DECLARATION;`
-            -   Declarations are special commands where field 1 is empty, i.e.
-                they commence with two colons instead of just one. As the
-                first line of a file, this declares the file type and must be
-                `::TEMPLATE;` to declare a template file. Template files do
-                not accept any other declarations.
-
-2. `:FRAGMENT:[path/to/]fragment;`
-            -   The :FRAGMENT command is specified with field 1 taking the
-                exact value `FRAGMENT`. Field 2 shall be the path to a
-                fragment file. All paths are relative to the read context of
-                the template file. This line shall be substituted by the
-                verbatim contents, excluding the declaration line and shebang
-                (if present) of `[path/to/]fragment`. If this file is not
-                present, build.py must try `[path/to/]fragment.fragment` and
-                `[path/to/]fragment.frag` in that order. This command will
-                fail if the file path cannot be resolved and may fail if the
-                file is not declared as a `::FRAGMENT;`.
-
-3. `:PARAMETRIC:[path/to/]parametric[:param1=value1[:param2=value2[...]]];`
-            -   The :PARAMETRIC command is specified with field 1 taking the
-                exact value `PARAMETRIC`. Field 2 shall be the path to a
-                parametric file. File resolution is the same as for the
-                fragment command except the extensions tried (in order) are:
-                "", ".parametric" and ".param". This line shall be substituted
-                by the parsed contents of the resolved file path. Any fields
-                specified beyond field 2 will be parsed as param=value pairs.
-                These fields must contain exactly one unescaped equals sign.
-                This command will fail if the file path cannot be resolved and
-                may fail if the file is not declared as a `::PARAMETRIC;` or
-                if required parameters are not provided or if there are syntax
-                errors in parsing parameter fields. Parametric files are
-                similar to fragment files except that they may declare and
-                resolve parameters when they are parsed.
-
-4. `:TEMPLATE:[path/to]template;`
-           -    The :TEMPLATE command is specified with field 1 taking the
-                exact value `TEMPLATE`. Field 2 shall be the path to a
-                template file. All paths are relative to the read context of
-                the template file. This line shall be substituted by the
-                recursively parsed contents of the sourced template file at
-                `[path/to/]template`. If this file is not present, build.py
-                must try `[path/to/]template.template` and
-                `[path/to/]template.temp` in that order. This command will
-                fail if the file path cannot be resolved and may fail if the
-                file is not declared as a `::TEMPLATE;`.
-
-### Fragment File Syntax
-
-Fragment files are plaintext literal files. When parsed they will produce 
-their literal content verbatim without any processing of tokens that may be
-valid syntax in other file types. The only exceptions to this may occur in the
-first two lines of the file. The first line of the file should be the fragment
-file declaration `::FRAGMENT;[comment]` and will not be echoed to the output.
-If the first line commences with `#!`, it will be assumed that the first line
-is a shebang. In this case, the very next line should be the file declaration
-and neither line shall be echoed. Why you should choose to execute a fragment
-file with a shebang — given that the output will merely be identity — is your
-business. Nevertheless, this functionality has been provided.
-
-Fragment file names should tend towards lower case styles but may contain any
-valid file path characters. Remember that colon and semicolon will need to be
-escaped where they are invoked. Recommended file extensions are ".fragment"
-and ".frag" and these are mostly handled automatically where the file is
-invoked, see :FRAGMENT command for details.
-
-### Parametric File Syntax
+#########################################################
 
 All valid fragment files are valid parametric files (excepting the requisite
 change of file declaration). Any lines which do not contain parametric syntax
