@@ -98,7 +98,7 @@ terminator.
 
 A command has several components. The first component is the indent. This is
 the substring preceeding the first `:` and must contain only whitespace
-characters. In the above example, the indent is `"    "`. The indent may be an
+characters. In the above example, the indent is: `"    "`. The indent may be an
 empty string.
 
 The next component is the body of the command. This contains all the semantic
@@ -118,7 +118,7 @@ The final component of any command is the comment. This is the substring which
 follows the terminating `;`. The comment is universally ignored in all commands
 and may be used to provide annotation to any file which is allowed to contain
 commands. A special "empty" command `:;` may be used to add a comment where a
-command isn't otherwise needed. In the above example, the comment is
+command isn't otherwise needed. In the above example, the comment is:<br>
 `" with an optional comment."`.
 
 ### Command directory
@@ -153,7 +153,7 @@ command isn't otherwise needed. In the above example, the comment is
                        parameter.
 
     BLUEPRINT
-        Syntax:        :BLUEPRINT:NAME;
+        Syntax:        :BLUEPRINT:[path/to/]blueprint;
 
         Function:      Import and parse the named blueprint file.
 
@@ -162,6 +162,15 @@ command isn't otherwise needed. In the above example, the comment is
                            Field_2    -    The name of the blueprint file to resolve and parse.
                            Field_3+   -    Unused.
 
+        Details:       All paths are relative to the location of the containing file unless
+                       otherwise specified. To resolve the file name, the directory  pointed to
+                       by path/to/ will be serched for a file with the given name and then the
+                       same name with the extensions ".blueprint" and ".blue" will be checked in
+                       that order. The first matching file will be the resolved blueprint file -
+                       even if it is not a blueprint file and a blueprint file exists at one of
+                       the other locations. For this reason it is always safest to include the
+                       file extension in the command field.
+        
         Availability:  Blueprint.
         
     FRAGMENT
@@ -176,6 +185,15 @@ command isn't otherwise needed. In the above example, the comment is
                            Field_3    -    The fully resolved name of the output file
                                            (blueprint only).
                            Field_4+   -    Unused.
+
+        Details:       All paths are relative to the location of the containing file unless
+                       otherwise specified. To resolve the file name, the directory  pointed to
+                       by path/to/ will be serched for a file with the given name and then the
+                       same name with the extensions ".fragment" and ".frag" will be checked in
+                       that order. The first matching file will be the resolved fragment file -
+                       even if it is not a fragment file and a fragment file exists at one of
+                       the other locations. For this reason it is always safest to include the
+                       file extension in the command field.
 
         Availability:  Blueprint, Template.
 
@@ -193,6 +211,15 @@ command isn't otherwise needed. In the above example, the comment is
                            Field_4+   -    The parameter=value pairs used to parse this
                                            instance of the parametric file.
 
+        Details:       All paths are relative to the location of the containing file unless
+                       otherwise specified. To resolve the file name, the directory  pointed to
+                       by path/to/ will be serched for a file with the given name and then the
+                       same name with the extensions ".parametric" and ".param" will be checked
+                       in that order. The first matching file will be the resolved parametric
+                       file - even if it is not a parametric file and a parametric file exists at
+                       one of the other locations. For this reason it is always safest to include
+                       the file extension in the command field.
+
         Availability:  Blueprint, Template.
     
     TEMPLATE
@@ -207,6 +234,15 @@ command isn't otherwise needed. In the above example, the comment is
                            Field_3    -    The fully resolved name of the output file
                                            (blueprint only).
                            Field_4+   -    Unused.
+
+        Details:       All paths are relative to the location of the containing file unless
+                       otherwise specified. To resolve the file name, the directory  pointed to
+                       by path/to/ will be serched for a file with the given name and then the
+                       same name with the extensions ".template" and ".temp" will be checked in
+                       that order. The first matching file will be the resolved template file -
+                       even if it is not a template file and a template file exists at one of
+                       the other locations. For this reason it is always safest to include the
+                       file extension in the command field.
 
         Availability:  Blueprint, Template.
 
