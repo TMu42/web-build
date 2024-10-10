@@ -213,6 +213,7 @@ command isn't otherwise needed. In the above example, the comment is
 ## Blueprint File Syntax
 
 Blueprint files are the top level project files in the web-build hierachy.
+They are used to describe and define the production of collections of files.
 Unlike other file types, blueprints are not parsed to produce output directly,
 rather they instruct the parser on which other files to parse and where to
 write their output (if any). As such, blueprints are command driven files and
@@ -222,32 +223,41 @@ comment space although this is not recommended as this behaviour may be
 deprecated in future. You should always use `:;` for comments.
 
 A blueprint file is declared with `::BLUEPRINT;` as the first line (or the
-second line if the first line is a shebang). Each non-empty line after this
+second line if the first line is shebang). Each non-empty line after this
 should be a command, one of `:BLUEPRINT:name;`,
 `:TEMPLATE:name[:output];`, `:FRAGMENT:name[:output];` or
 `:PARAMETRIC:name[:output];`. If output is not provided, a default output
 file will be selected.
 
+It is recommended that blueprint files use the file extension ".blueprint" or
+".blue" however this is not mandated. A consitant style for file extensions
+should be used within a project.
+
+As a general rule, blueprints should only invoke templates and other
+blueprints. Invoking fragments and parametrics directly is discouraged as
+these file types are not designed to produce whole output files. Nevertheless,
+these files can be directly parsed to outputs and therefore may be included in
+a blueprint file.
+
 ## Template File Syntax
 
-Any plaintext file could be a valid template file - as long as it commences
-with the template file identifier - however without the following syntax, the
-output will generally be identity (excluding the identifier and shebang if
-present).
+Template files are second level project files in the web-build hierachy.
+They are used to describe and define the production of individual files.
+They may also be used to describe and define compound components of files.
+Template files are parsed to produce a contiguous output which can be
+written to a single file. They are hybrid command and file text driven.
 
-A template file should commence with the line `::TEMPLATE;[optional comment]`.
-In order to comply with shebang syntax, if the first line commences with `#!`,
-it will be ignored and the second line shall be `::TEMPLATE;`. This is a
-special case, all other `#!` commencing lines will be preserved in the output.
-This means that an executable (shebang) template to produce an executable
-(shebang) script could commence as:
+A template file is declared with `::TEMPLATE;` as the first line (or the
+second line if the first line is shebang). This means that an executable
+(shebang) template to produce an executable (shebang) script could commence:
 
      #! /path/to/webuild
      ::TEMPLATE; to build executable script
      #! /path/to/script_interpreter
+Each ...
 
-It is also recomended that template files use the file extension `.template`
-or `.temp` however this is not mandated. A consitant style for file extensions
+It is recomended that template files use the file extension `.template` or
+`.temp` however this is not mandated. A consitant style for file extensions
 should be used within a project.
 
 ### General Template Syntax
