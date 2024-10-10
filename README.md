@@ -210,6 +210,21 @@ command isn't otherwise needed. In the above example, the comment is
 
         Availability:  Blueprint, Template.
 
+## Escape Character Syntax
+
+Sometimes a file needs to include characters which would normally have special
+meanings or effects, without invoking these effects. As such, web-build defines
+a universal escape character `'\'`. Wherever this character is encountered in
+a web-build file (except in a fragment file), it has the special effect of
+negating any special effect of the next character (if any). The escape
+character produces no output itself however if this character is needed in the
+output, it can itself be escaped, i.e. `\\` -> `\`. This behaviour forms part
+of the universal file syntax, available in the file text of any web-buid file
+(except fragment files) but can also be used within commands with the same
+effect. The escape character can be leveraged to include a `':'` or `';'` in a
+command field or even to escape the special meaning of characters within a
+field (such as `'='` in a `:PARAMETRIC;` command).
+
 ## Blueprint File Syntax
 
 Blueprint files are the top level project files in the web-build hierachy.
@@ -254,7 +269,11 @@ second line if the first line is shebang). This means that an executable
      #! /path/to/webuild
      ::TEMPLATE; to build executable script
      #! /path/to/script_interpreter
-Each ...
+Each line after the declaration will be parsed as either file text or command.
+File text will have escapes processed and then output as is whilst commands
+will be executed and replaced by their output (if any). Commands should be one
+of `:TEMPLATE:name;`, `:FRAGMENT:name;` or
+`:PARAMETRIC:name[::param_1=val_1[:param_2=val_2[...]]];`.
 
 It is recomended that template files use the file extension `.template` or
 `.temp` however this is not mandated. A consitant style for file extensions
