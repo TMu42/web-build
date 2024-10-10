@@ -21,19 +21,19 @@ OR when installed:
 
 ### Overview
 
-                                           Blueprint
-                                               |
-        +------------+------------+------------+------------+------------+------------+
-        |            |            |            |            |            |            |
-    Blueprint     Blueprint    Template     Template     Parametric   Parametric   Fragment
-                                               |
-        +------------+------------+------------+------------+------------+------------+
-        |            |            |            |            |            |            |
-    Template     Parametric   Parametric    Template     Fragment     Fragment    Plain Text
-                     |                                                   |
-        +------------+------------+------------+            +------------+------------+
-        |            |            |            |            |            |            |
-    Parameter    Parameter    Plain Text   Plain Text   Plain Text   Plain Text    Plain Text
+                                               Blueprint
+                                                   |
+            +------------+------------+------------+------------+------------+------------+
+            |            |            |            |            |            |            |
+        Blueprint     Blueprint    Template     Template     Parametric   Parametric   Fragment
+                                                   |
+            +------------+------------+------------+------------+------------+------------+
+            |            |            |            |            |            |            |
+        Template     Parametric   Parametric    Template     Fragment     Fragment    Plain Text
+                         |                                                   |
+            +------------+------------+------------+            +------------+------------+
+            |            |            |            |            |            |            |
+        Parameter    Parameter    Plain Text   Plain Text   Plain Text   Plain Text    Plain Text
 
 Blueprints are overall project plans, they may contain references to any
 other file type. Templates describe the structure of individual project files
@@ -47,7 +47,7 @@ variables (parameters).
 
 A blueprint or project outline, listing one or more other files and defining
 how they should be handled and where output should be written. Blueprints may
-invoke other blueprints, define the outputs for templates, parametrics and
+invoke other blueprints and define the outputs for templates, parametrics and
 fragments. Blueprints are essentially build scripts which define all the
 web-build operations needed to build a project (or part thereof) from small,
 managable chunks.
@@ -57,43 +57,198 @@ managable chunks.
 A template for a single file, containing direct plain text to output and
 invocations to substitute the parsed contents of other web-build files.
 Templates may invoke and insert other templates as well as fragments and
-parametrics. Templates are essentially a markup outline of a particular
-file.
+parametrics. Templates are essentially outlines of particular files.
 
 ### Fragment
 
 A reusable chunk of literal, plain text content. Fragments are used to
 define small chunks of code which can be substituted verbatim into multiple
-template files. Fragments are essentially literal macros which can be invoked
-by other files.
+template files or at multiple points in the same template file (or both).
+Fragments are essentially literal macros which can be invoked by other files.
 
 ### Parametric
 
 A reusable chunk of content with parametric components. Parametrics are used
 to define small chunks of code with variable components which can be
-parametrically substituted into multiple template files. Parametrics are
-essentially parametric macros which can be invoked by other files.
+parametrically substituted into multiple template files or at multiple points
+in the same template file (or both) with different values. Parametrics are
+essentially parameterized macros which can be invoked by other files.
+
+## Command Syntax
+
+Each web-build file type contains a combination of file text and commands.
+File text is further divided into plain text - parsed unaltered to output (if
+any) - and file specific syntax. This section focuses on command syntax.
+
+Commands are lines which instruct the interpreter to perform actions. Some
+commands produce output whilst others change the state of the interpreter for
+future parsing. All file types (except fragments) may contain commands however
+the list of valid commands varies by file type and context.
+
+### Anatomy of a command
+
+Each command must be on a single line and must occupy the whole line. Every
+line in a file must either be a single command OR file text. A line may not
+contain a combination of command and file text. A line may not contain more
+than one command. A line is a command if and only if its first non-whitespace
+character is `:`. A valid command must also contain an unescaped `;` as a
+terminator.
+
+`    :THIS:IS:A:COMMAND; with an optional comment.`
+
+A command has several components. The first component is the indent. This is
+the substring preceeding the first `:` and must contain only whitespace
+characters. In the above example, the indent is `"    "`. The indent may be an
+empty string.
+
+The next component is the body of the command. This contains all the semantic
+value of the command. The body starts at the first `:` and ends at the first
+unescaped `;`. In the above example, the body is `":THIS:IS:A:COMMAND;"`. The
+body is divided into a series of 1 or more fields by unescaped `:`s. A field is
+simply a string which may contain any characters except newline (currently
+unsupported). `:`s and `;`s must be escaped so as not to terminate the field or
+the command body. In the above example, the fields are: field_1 = `"THIS"`;
+field_2 = `"IS"`; field_3 = `"A"`; field_4 = `"COMMAND"`. The first field is
+also called the name of the command. There is no limit to the number of fields
+a command body may contain however the command in question will determine how
+many fields are required and optional. Unused fields may be truncated and may
+produce warnings in some implementations.
+
+The final component of any command is the comment. This is the substring which
+follows the terminating `;`. The comment is universally ignored in all commands
+and may be used to provide annotation to any file which is allowed to contain
+commands. A special "empty" command `:;` may be used to add a comment where a
+command isn't otherwise needed. In the above example, the comment is
+`" with an optional comment."`.
+
+### Command directory
+
+    NOOP
+        Syntax:        :;
+        
+        Function:      Guarenteed to do nothing, this simply provides space for a comment.
+
+        Fields:        Exactly 1 field.
+                           Field_1    -    Must be empty.
+
+        Availability:  Blueprint, Template, Parametric.
+
+    DECLARATION
+        Syntax:        ::DECLARATION[:INFO[...]];
+
+        Function:      Declare a property of the file being parsed.
+
+        Fields:        At least 2 fields.
+                           Field_1    -    Must be empty.
+                           Field_2    -    The property being declared.
+                           Field_3+   -    Any parameters applicable to the property.
+        
+        Availability:  Blueprint, Template, Parametric, Fragment (first line only).
+
+        Examples:      The file type declaration is a DECLARATION command which must appear as
+                       the first (non-shebang) line of any web-build file. File type
+                       declarations are: ::BLUEPRINT;, ::TEMPLATE;, ::FRAGMENT and ::PARAMETRIC;.
+                       ::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT]]; is another example of a
+                       DECLARATION used in parametric files to declare the existance of a
+                       parameter.
+
+    BLUEPRINT
+        Syntax:        :BLUEPRINT:NAME;
+
+        Function:      Import and parse the named blueprint file.
+
+        Fields:        At least 2 fields.
+                           Field_1    -    Must be exactly "BLUEPRINT".
+                           Field_2    -    The name of the blueprint file to resolve and parse.
+                           Field_3+   -    Unused.
+
+        Availability:  Blueprint.
+        
+    FRAGMENT
+        Syntax:        :FRAGMENT:NAME[:OUTPUT];
+
+        Function:      Import the named fragment file, parse it and substitute the output for
+                       this line or output to the named output file.
+
+        Fields:        At least 2 fields.
+                           Field_1    -    Must be exactly "FRAGMENT".
+                           Field_2    -    The name of the fragment file to resolve and parse.
+                           Field_3    -    The fully resolved name of the output file
+                                           (blueprint only).
+                           Field_4+   -    Unused.
+
+        Availability:  Blueprint, Template.
+
+    PARAMETRIC
+        Syntax:        :PARAMETRIC:NAME[:[OUTPUT][:PARAM_1=val_1[:PARAM_2=val_2[...]]]];
+
+        Function:      Import the named parametric file, parse it with the given parameters and
+                       substitute the output for this line or output to the named output file.
+
+        Fields:        At least 2 fields.
+                           Field_1    -    Must be exactly "PARAMETRIC".
+                           Field_2    -    The name of the template file to resolve and parse.
+                           Field_3    -    The fully resolved name of the output file
+                                           (blueprint only).
+                           Field_4+   -    The parameter=value pairs used to parse this
+                                           instance of the parametric file.
+
+        Availability:  Blueprint, Template.
+    
+    TEMPLATE
+        Syntax:        :TEMPLATE:NAME[:OUTPUT];
+
+        Function:      Import the named template file, parse it and substitute the output for
+                       this line or output to the named output file.
+
+        Fields:        At least 2 fields.
+                           Field_1    -    Must be exactly "TEMPLATE".
+                           Field_2    -    The name of the template file to resolve and parse.
+                           Field_3    -    The fully resolved name of the output file
+                                           (blueprint only).
+                           Field_4+   -    Unused.
+
+        Availability:  Blueprint, Template.
+
+## Blueprint File Syntax
+
+Blueprint files are the top level project files in the web-build hierachy.
+Unlike other file types, blueprints are not parsed to produce output directly,
+rather they instruct the parser on which other files to parse and where to
+write their output (if any). As such, blueprints are command driven files and
+do not generally contain plain text. Any non-command lines (plain text) in a
+blueprint have no semantic value, are ignored and may therefore be used as
+comment space although this is not recommended as this behaviour may be
+deprecated in future. You should always use `:;` for comments.
+
+A blueprint file is declared with `::BLUEPRINT;` as the first line (or the
+second line if the first line is a shebang). Each non-empty line after this
+should be a command, one of `:BLUEPRINT:name;`,
+`:TEMPLATE:name[:output];`, `:FRAGMENT:name[:output];` or
+`:PARAMETRIC:name[:output];`. If output is not provided, a default output
+file will be selected.
 
 ## Template File Syntax
 
 Any plaintext file could be a valid template file - as long as it commences
 with the template file identifier - however without the following syntax, the
-output will generally be identity.
+output will generally be identity (excluding the identifier and shebang if
+present).
 
-A template file should commence with the line `::TEMPLATE;` with a comment
-permitted following the semicolon. In order to comply with shebang syntax, if
-the first line commences with `#!`, it will be ignored and the second line
-shall be `::TEMPLATE;`. This is a special case, all other `#!` commencing
-lines will be preserved in the output. This means that an executable (shebang)
-template to produce an executable (shebang) script could commence as:
+A template file should commence with the line `::TEMPLATE;[optional comment]`.
+In order to comply with shebang syntax, if the first line commences with `#!`,
+it will be ignored and the second line shall be `::TEMPLATE;`. This is a
+special case, all other `#!` commencing lines will be preserved in the output.
+This means that an executable (shebang) template to produce an executable
+(shebang) script could commence as:
 
-     #! /path/to/build.py
+     #! /path/to/webuild
      ::TEMPLATE; to build executable script
-     #! /path/to/interpreter
+     #! /path/to/script_interpreter
 
 It is also recomended that template files use the file extension `.template`
-however this is not mandated. A consitant style for file extensions should be
-used within a project.
+or `.temp` however this is not mandated. A consitant style for file extensions
+should be used within a project.
 
 ### General Template Syntax
 
