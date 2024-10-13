@@ -87,7 +87,6 @@ def main(args):
         infile = open_blueprint(args[1])
     except IndexError:
         infile  = sys.stdin
-    else:
     
     parse_blueprint(infile)
     
