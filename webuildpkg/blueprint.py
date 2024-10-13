@@ -84,20 +84,14 @@ BLUEPRINT_EXTS = ["", ".blueprint", ".blue"]
 ###############################################################################
 def main(args):
     try:
-        infile = open_template(args[1])
+        infile = open_blueprint(args[1])
     except IndexError:
         infile  = sys.stdin
-        outfile = sys.stdout
     else:
-        try:
-            outfile = shared.open_output(args[2])
-        except IndexError:
-            outfile = sys.stdout
     
-    parse_template(infile, outfile)
+    parse_blueprint(infile)
     
     infile.close()
-    outfile.close()
     
     return 0
 
