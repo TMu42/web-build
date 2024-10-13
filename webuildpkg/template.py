@@ -103,7 +103,7 @@ def main(args):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       open_template(name)                                                   #
+#       open_template(name, path=None)                                        #
 #                                                                             #
 #   Parameters:                                                               #
 #       name        -   string: the file name or handle to open as an input   #

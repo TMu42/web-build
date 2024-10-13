@@ -99,7 +99,7 @@ def main(args):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       open_blueprint(name)                                                  #
+#       open_blueprint(name, path=None)                                       #
 #                                                                             #
 #   Parameters:                                                               #
 #       name        -   string: the file name or handle to open as an input   #
