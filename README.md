@@ -346,10 +346,14 @@ itself. They are mostly file text driven.
 
 A parametric file is declared with `::PARAMETRIC;` as the first line (or the
 second line if the first line is shebang). Each line after the declaration is
-either a command or file text. The only valid commands in parametric files are
-parameter declarations which should (but are not mandated to) be at the head
-of the file. The behaviour of parameter declarations which occur after the
-first instance of the parameter in the file will be disappointing. Parameter
+either a command or file text.
+
+### Parametric file — commands
+
+The only valid commands in parametric files are
+parameter declarations which should be (but are not mandated to be) at the
+head of the file. The behaviour of parameter declarations which occur after
+the first instance of the parameter in the file is undefined. Parameter
 declarations are of the following structure:
 `::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT]]`. The parameter declaration
 contains a number of standard components:
@@ -374,28 +378,50 @@ set, the template invocation will fail if the parameter is not bound. If only
 (not the usual error) if the invocation fails to bind `PARAM_NAME` and the
 invocation will succeed (notwithstanding other errors).
 
-#########################################################
+### Parametric file — file text syntax
 
-1. `<[PARAM_NAME]>`
+In addition to command syntax, parametric files also provide some file text
+syntax. Escapes (`\`) are valid and processed throughout the file (commands
+and file text) in the same way as for other file types (except fragment
+files).
 
-       -    May occur anywhere in the file which is not a command or comment but must be
-            contained on a single line in each instance. It will be substituted for the value
-            bound to `PARAM_NAME` at invocation. Each `PARAM_NAME` may appear any number of times
-            in the file. The default behaviour (if not otherwise declared) is for parameters not
-            mapped at invocation to raise a warning and default to an empty string substitution.
-            To modify this behaviour, a declaration for the parameter is required. It is
-            recomended that parameter names should be in allcaps style.
-########################
-            Example behaviour when unbound at invocation:
+The other main file text syntax available in parametric files if the Parameter
+Token. Parameter Tokens form the basis of why parametric files are more
+powerful than fragment files. Parameter Tokens are the in-line macros which —
+when parsed — are substituted for the values bound to each parameter.
+Parameter Tokens are valid anywhere within file text (not in command lines) as
+long as they do not span more than one line.
 
-                `::PARAM:A;`            -> Bind `""` to `<[A]>` with unbound warning.
-   
-                `::PARAM:B:True;`       -> Fail with unbound error.
-   
-                `::PARAM:C:False;`      -> Silently bind `""` to `<[C]>`.
-   
-                `::PARAM:D::foo;`       -> Silently bind `"foo"` to `<[D]>`.
-   
-                `::PARAM:E:True:bar`    -> Bind `"bar"` to `<[E]>` with unbound warning.
-   
-                `::PARAM:F:False:baz`   -> Silently bind `"baz"` to `<[F]>`.
+The syntax for Parameter Tokens is `<[PARAM_NAME]>` where
+`PARAM_NAME` is the name of the parameter bound either by a declaration
+command or at invocation in another file (using the `:PARAMETRIC` command). If
+the literal string `"<["` needs to appear within the plain text portion of a
+parametric file, either or both characters need to be escaped. The recommended
+escape is `\<[` however `<\[` and `\<\[` are also valid. The same is true if
+the literal string `"]>"` needs to appear within a Parameter Token (however
+this is very bad style and highly discouraged, PLEASE don't use these
+characters in parameter names).
+
+Each named parameter may appear (as a Parameter Token) as many times as needed
+within a file, or even on the same line. There is no limit to the number of
+parameters which can be provided however, if the number of parameters set in
+each invocation becomes unworkable, you should reconsider the design structure
+of your project.
+
+Example behaviour of parameter declarations when unbound at invocation:
+
+`::PARAM:A;`            -> Bind `""` to `<[A]>` with unbound warning.
+
+`::PARAM:B:True;`       -> Fail with unbound error.
+
+`::PARAM:C:False;`      -> Silently bind `""` to `<[C]>`.
+
+`::PARAM:D::foo;`       -> Silently bind `"foo"` to `<[D]>`.
+
+`::PARAM:E:True:bar`    -> Bind `"bar"` to `<[E]>` with unbound warning.
+
+`::PARAM:F:False:baz`   -> Silently bind `"baz"` to `<[F]>`.
+
+
+
+
