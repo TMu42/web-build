@@ -345,7 +345,7 @@ def _parse_blueprint_command(
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       _assert_template(command, file_name="", line_no=0, line="")           #
+#       _assert_blueprint(command, file_name="", line_no=0, line="")          #
 #                                                                             #
 #   Parameters:                                                               #
 #       command     -   list:   a valid parsed command, the output of         #
@@ -367,19 +367,19 @@ def _parse_blueprint_command(
 #   Returns:    None.                                                         #
 #                                                                             #
 #   Raises:                                                                   #
-#       shared.ParseError   -   when `command` is not a template file         #
+#       shared.ParseError   -   when `command` is not a blueprint file        #
 #                               declaration.                                  #
 #                                                                             #
 #   Description:                                                              #
-#       Check that the passed `command` is a template file declaration and    #
+#       Check that the passed `command` is a blueprint file declaration and   #
 #       raise `ParseError` if it is not.                                      #
 #                                                                             #
 ###############################################################################
-def _assert_template(command, file_name="", line_no=0, line=""):
+def _assert_blueprint(command, file_name="", line_no=0, line=""):
     cmd = command[1:-1]
     
-    if (not cmd[1:]) or cmd[1] != shared.TEMPLATE_ID:
-        raise shared.ParseError(f"Invalid template file declaration.",
+    if (not cmd[1:]) or cmd[1] != shared.BLUEPRINT_ID:
+        raise shared.ParseError(f"Invalid blueprint file declaration.",
                                 (file_name, line_no, 1, line.strip()))
 
 
