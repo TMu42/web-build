@@ -69,7 +69,7 @@ TEMPLATE_EXTS = ["", ".template", ".temp"]
 #                               input file and args[2] will specify the       #
 #                               output file, required.                        #
 #                                                                             #
-#   Returns:    int:    `EXIT_SUCCESS` or and error code.                     #
+#   Returns:    int:    `EXIT_SUCCESS` or an error code.                      #
 #                                                                             #
 #   Raises:                                                                   #
 #       Just about anything...                                                #

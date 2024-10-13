@@ -68,18 +68,18 @@ BLUEPRINT_EXTS = ["", ".blueprint", ".blue"]
 #   Parameters:                                                               #
 #       args        -   list:   the argument list as passed at the command    #
 #                               line (sys.argv). args[1] will specify the     #
-#                               input file and args[2] will specify the       #
-#                               output file, required.                        #
+#                               input file, required.                         #
 #                                                                             #
-#   Returns:    int:    `EXIT_SUCCESS` or and error code.                     #
+#   Returns:    int:    `EXIT_SUCCESS` or an error code.                      #
 #                                                                             #
 #   Raises:                                                                   #
 #       Just about anything...                                                #
 #                                                                             #
 #   Description:                                                              #
 #       The main execution method called if this module is executed rather    #
-#       than imported. This method will resolve input and output file and     #
-#       parse the contents of a template file to the output file.             #
+#       than imported. This method will resolve input and file and parse      #
+#       the contents of a blueprint file to produce any specified output.     #
+#       files.
 #                                                                             #
 ###############################################################################
 def main(args):
