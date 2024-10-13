@@ -99,7 +99,7 @@ def main(args):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       open_template(name)                                                   #
+#       open_blueprint(name)                                                  #
 #                                                                             #
 #   Parameters:                                                               #
 #       name        -   string: the file name or handle to open as an input   #
@@ -120,19 +120,19 @@ def main(args):
 #                                                                             #
 #   Description:                                                              #
 #       Opens and returns a readable file based upon name resolution from     #
-#       `name` using `TEMPLATE_EXTS` unless `name` indicates a standard       #
+#       `name` using `BLUEPRINT_EXTS` unless `name` indicates a standard      #
 #       stream (see `shared.open_output()`). If the standard stream is        #
 #       indicated, sys.stdin is returned.                                     #
 #                                                                             #
 ###############################################################################
-def open_template(name, path=None):
+def open_blueprint(name, path=None):
     if name in shared.STDINS:
         return sys.stdin
     
     if path and name[0] != '/':
         name = f"{path}/{name}"
     
-    for ext in TEMPLATE_EXTS:
+    for ext in BLUEPRINT_EXTS:
         try:
             f = open(name + ext, 'r')
         except (FileNotFoundError, IsADirectoryError):
@@ -142,19 +142,17 @@ def open_template(name, path=None):
     
     raise FileNotFoundError(
         f"Not any such file, tried: "
-        f"'{'\', \''.join([name + ext for ext in TEMPLATE_EXTS])}'.")
+        f"'{'\', \''.join([name + ext for ext in BLUEPRINT_EXTS])}'.")
 
 
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       parse_template(infile, outfile, line_no=0)                            #
+#       parse_blueprint(infile, line_no=0)                                    #
 #                                                                             #
 #   Parameters:                                                               #
 #       infile      -   file:   an open input file, must be a valid           #
-#                               template file, the file to parse, required.   #
-#                                                                             #
-#       outfile     -   file:   an open output file, the file to write,       #
+#                               blueprint file, the file to parse,            #
 #                               required.                                     #
 #                                                                             #
 #       line_no     -   int:    the initial line number, default value is     #
@@ -170,19 +168,19 @@ def open_template(name, path=None):
 #                                                                             #
 #   Raises:                                                                   #
 #       shared.ParseError       -   when the input file is not a correctly    #
-#                                   declared template file.                   #
+#                                   declared blueprint file.                  #
 #                                                                             #
 #   Description:                                                              #
-#       Parses a template file (see README) and writes the results to the     #
-#       specified output file.                                                #
+#       Parses a blueprint file (see README) and recursively processed each   #
+#       file invoked by commands, writing their output as specified.          #
 #                                                                             #
 ###############################################################################
-def parse_template(infile, outfile, line_no=0):
+def parse_blueprint(infile, line_no=0):
     if line_no == 0:
         line, line_no = shared.parse_shebang(infile)
         
-        _assert_template(shared.parse_command(line, infile.name, line_no),
-                         infile.name, line_no, line)
+        _assert_blueprint(shared.parse_command(line, infile.name, line_no),
+                          infile.name, line_no, line)
     
     while (line := infile.readline()):
         line_no += 1
@@ -190,10 +188,10 @@ def parse_template(infile, outfile, line_no=0):
         try:
             command = shared.parse_command(line, infile.name, line_no)
         except shared.ParseError:
-            outfile.write(line)
+            pass
         else:
-            _parse_template_command(
-                command, outfile, _path(infile), infile.name, line_no, line)
+            _parse_blueprint_command(
+                command, _path(infile), infile.name, line_no, line)
 
 
 ###############################################################################
