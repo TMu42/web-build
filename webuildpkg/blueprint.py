@@ -38,24 +38,26 @@ import sys
 
 try:
     from . import shared
+    from . import template
     from . import fragment
     from . import parametric
 except ImportError:
     import shared
+    import template
     import fragment
     import parametric
 
 
 ###############################################################################
 #                                                                             #
-#   Template Constants:                                                       #
-#           TEMPLATE_EXTS   -   A priority ordered list of default file       #
-#                               extension to append to template file          #
-#                               identifiers. `open_template()` will try       #
+#   Blueprint Constants:                                                      #
+#           BLUEPRINT_EXTS  -   A priority ordered list of default file       #
+#                               extension to append to blueprint file         #
+#                               identifiers. `open_blueprint()` will try      #
 #                               each in turn until one succeeds.              #
 #                                                                             #
 ###############################################################################
-TEMPLATE_EXTS = ["", ".template", ".temp"]
+BLUEPRINT_EXTS = ["", ".blueprint", ".blue"]
 
 
 ###############################################################################
