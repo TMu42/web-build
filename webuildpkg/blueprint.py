@@ -18,14 +18,14 @@
 ####        open_blueprint(name, path)                                     ####
 ####                -   Open a blueprint file with a given name.           ####
 ####                                                                       ####
-####        parse_blueprint(infile, line_no)                               ####
+####        parse_blueprint(infile, line_no, file_count)                   ####
 ####                -   Parse an open blueprint file.                      ####
 ####                                                                       ####
 ####        _path(f)       ######################################          ####
 ####                -   Get a file object's path.                          ####
 ####                                                                       ####
-####        _parse_blueprint_command(command, path, file_name,             ####
-####                                                line_no, line)         ####
+####        _parse_blueprint_command(command, path, file_count,            ####
+####                                          file_name, line_no, line)    ####
 ####                -   Parse a command from a blueprint file.             ####
 ####                                                                       ####
 ####        _assert_blueprint(command, file_name, line_no, line)           ####
@@ -148,7 +148,7 @@ def open_blueprint(name, path=None):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       parse_blueprint(infile, line_no=0)                                    #
+#       parse_blueprint(infile, line_no=0, file_count=0)                      #
 #                                                                             #
 #   Parameters:                                                               #
 #       infile      -   file:   an open input file, must be a valid           #
@@ -164,7 +164,10 @@ def open_blueprint(name, path=None):
 #                               whether the file type declaration is          #
 #                               checked, default=0.                           #
 #                                                                             #
-#   Returns:    None.                                                         #
+#       file_count  -   int:    the number of default files already           #
+#                               written, default=0.                           #
+#                                                                             #
+#   Returns:    int:    the updated file_count.                               #
 #                                                                             #
 #   Raises:                                                                   #
 #       shared.ParseError       -   when the input file is not a correctly    #
@@ -175,7 +178,7 @@ def open_blueprint(name, path=None):
 #       file invoked by commands, writing their output as specified.          #
 #                                                                             #
 ###############################################################################
-def parse_blueprint(infile, line_no=0):
+def parse_blueprint(infile, line_no=0, file_count=0):
     if line_no == 0:
         line, line_no = shared.parse_shebang(infile)
         
@@ -190,8 +193,11 @@ def parse_blueprint(infile, line_no=0):
         except shared.ParseError:
             pass
         else:
-            _parse_blueprint_command(
-                command, _path(infile), infile.name, line_no, line)
+            file_count = _parse_blueprint_command(
+                                    command, _path(infile),
+                                    file_count, infile.name, line_no, line)
+    
+    return file_count
 
 
 ###############################################################################
@@ -226,23 +232,24 @@ def _path(f):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       _parse_template_command(                                              #
-#                   command, outfile, file_name="", line_no=0, line="")       #
+#       _parse_blueprint_command(command, path=None, file_count=0,            #
+#                                         file_name="", line_no=0, line="")   #
 #                                                                             #
 #   Parameters:                                                               #
 #       command     -   list:   a valid parsed command, the output of         #
 #                               `shared.parse_command()` applied to a         #
-#                               line of a template file, required.            #
-#                                                                             #
-#       outfile     -   file:   an open output file, the file to write,       #
-#                               required.                                     #
+#                               line of a blueprint file, required.           #
 #                                                                             #
 #       path        -   string: the path to the file being parsed, used to    #
 #                               resolve the names of sourced files for        #
-#                               :TEMPLATE, :FRAGMENT and :PARAMETRIC          #
-#                               commands, relative commands are related to    #
-#                               the Python working directory which is used    #
-#                               if None, "" or ommited, default=None.         #
+#                               :BLUEPRINT, :TEMPLATE, :FRAGMENT and          #
+#                               :PARAMETRIC commands, relative paths are      #
+#                               related to the Python working directory       #
+#                               which is used if None, "" or ommited,         #
+#                               default=None.                                 #
+#                                                                             #
+#       file_count  -   int:    the number of default files already           #
+#                               written, default=0.                           #
 #                                                                             #
 #       file_name   -   string: the name of the file, only used for error     #
 #                               messages so may safely be omitted if this     #
@@ -256,47 +263,72 @@ def _path(f):
 #                               messages so may safely be omitted if this     #
 #                               is not required, default="".                  #
 #                                                                             #
-#   Returns:    None.                                                         #
+#   Returns:    int:    the updated file_count.                               #
 #                                                                             #
 #   Raises:                                                                   #
 #       shared.ParseError   -   when the command is not valid, is missing     #
 #                               required fields or is not recognized in       #
-#                               template files.                               #
+#                               blueprint files.                              #
 #                                                                             #
 #       RuntimeError        -   when the command has no readable normal       #
 #                               fields.                                       #
 #                                                                             #
 #   Description:                                                              #
-#       Take a command from a template file, check its validity in the        #
-#       template file context and delegate to the appropriate function.       #
+#       Take a command from a blueprint file, check its validity in the       #
+#       blueprint file context and delegate to the appropriate function.      #
 #                                                                             #
 ###############################################################################
-def _parse_template_command(
-            command, outfile, path=None, file_name="", line_no=0, line=""):
+def _parse_blueprint_command(
+        command, path=None, file_count=0, file_name="", line_no=0, line=""):
     cmd = command[1:-1]
     
     if cmd and cmd[0] == "" and not cmd[1:]:                    # Comment
         pass
     elif cmd and cmd[0] == "":                                  # Declaration
         raise shared.ParseError(
-                f"Template files may not contain declarations.",
+                f"Blueprint files may not contain declarations.",
                 (infile.name, line_no, 1, line.strip()))
     elif cmd and cmd[0] in shared.FILE_IDS and not cmd[1:]:     # No Source
         raise shared.ParseError(
                 f"Bad :{cmd[0]} command, must specify source.",
                 (infile.name, line_no, 1, line.strip()))
+    elif cmd and cmd[0] == shared.BLUEPRINT_ID:         # Valid :BLUEPRINT
+        blufile = open_blueprint(cmd[1], path)
+        
+        file_count = parse_blueprint(blufile, file_count=file_count)
     elif cmd and cmd[0] == shared.TEMPLATE_ID:          # Valid :TEMPLATE
         temfile = open_template(cmd[1], path)
+        
+        if cmd[2:] and cmd[2] != "":
+            outfile = shared.open_output(cmd[2])
+        else:
+            outfile = shared.open_output(f"{file_count}.out")
+            
+            file_count += 1
         
         parse_template(temfile, outfile)
     elif cmd and cmd[0] == shared.FRAGMENT_ID:          # Valid :FRAGMENT
         fragfile = fragment.open_fragment(cmd[1], path)
         
+        if cmd[2:] and cmd[2] != "":
+            outfile = shared.open_output(cmd[2])
+        else:
+            outfile = shared.open_output(f"{file_count}.out")
+            
+            file_count += 1
+        
         fragment.parse_fragment(fragfile, outfile)
     elif cmd and cmd[0] == shared.PARAMETRIC_ID:        # Valid :PARAMETRIC
         parafile = parametric.open_parametric(cmd[1], path)
         
-        params = parametric.parse_parameters(cmd[2:])
+        if cmd[2:] and cmd[2] != "":
+            outfile = shared.open_output(cmd[2])
+        else:
+            outfile = shared.open_output(f"{file_count}.out")
+            
+            file_count += 1
+        
+        params = parametric.parse_parameters(cmd[3:])
         
         parametric.parse_parametric(parafile, outfile, params)
     elif cmd:                                               # Other command
@@ -306,6 +338,8 @@ def _parse_template_command(
         raise RuntimeError(f"  File \"{infile.name}\", line {line_no}\n"
                            f"    {line.strip()}\n"
                            f"  caused a zero-length command to parse.")
+    
+    return file_count
 
 
 ###############################################################################

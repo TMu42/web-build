@@ -232,8 +232,8 @@ def _path(f):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       _parse_template_command(                                              #
-#                   command, outfile, file_name="", line_no=0, line="")       #
+#       _parse_template_command(command, outfile, path=None, file_name="",    #
+#                                                       line_no=0, line="")   #
 #                                                                             #
 #   Parameters:                                                               #
 #       command     -   list:   a valid parsed command, the output of         #
@@ -246,9 +246,9 @@ def _path(f):
 #       path        -   string: the path to the file being parsed, used to    #
 #                               resolve the names of sourced files for        #
 #                               :TEMPLATE, :FRAGMENT and :PARAMETRIC          #
-#                               commands, relative commands are related to    #
-#                               the Python working directory which is used    #
-#                               if None, "" or ommited, default=None.         #
+#                               commands, relative paths are related to the   #
+#                               Python working directory which is used if     #
+#                               None, "" or ommited, default=None.            #
 #                                                                             #
 #       file_name   -   string: the name of the file, only used for error     #
 #                               messages so may safely be omitted if this     #
