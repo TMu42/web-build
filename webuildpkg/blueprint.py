@@ -3,33 +3,33 @@
 ####                                                                       ####
 ####    Copyright: © 2024 TMu42, All Rights Reserved.                      ####
 ####                                                                       ####
-####    File: `template.py`.                                               ####
+####    File: `blueprint.py`.                                              ####
 ####                                                                       ####
-####    Summary: Module for handling and parsing template files of the     ####
+####    Summary: Module for handling and parsing blueprint files of the    ####
 ####             `web-build` utility file standard.                        ####
 ####                                                                       ####
 ####    Constants:                                                         ####
-####        TEMPLATE_EXTS   -   list:   Template file extension strs.      ####
+####        BLUEPRINT_EXTS  -   list:   Blueprint file extension strs.     ####
 ####                                                                       ####
 ####    Methods:                                                           ####
 ####        main(args)                                                     ####
 ####                -   Main execution method, not called on import.       ####
 ####                                                                       ####
-####        open_template(name, path)                                      ####
-####                -   Open a template file with a given name.            ####
+####        open_blueprint(name, path)                                     ####
+####                -   Open a blueprint file with a given name.           ####
 ####                                                                       ####
-####        parse_template(infile, outfile, line_no)                       ####
-####                -   Parse an open template file.                       ####
+####        parse_blueprint(infile, line_no)                               ####
+####                -   Parse an open blueprint file.                      ####
 ####                                                                       ####
-####        _path(f)                                                       ####
+####        _path(f)       ######################################          ####
 ####                -   Get a file object's path.                          ####
 ####                                                                       ####
-####        _parse_template_command(command, outfile, path,                ####
-####                                file_name, line_no, line)              ####
-####                -   Parse a command from a template file.              ####
+####        _parse_blueprint_command(command, path, file_name,             ####
+####                                                line_no, line)         ####
+####                -   Parse a command from a blueprint file.             ####
 ####                                                                       ####
-####        _assert_template(command, file_name, line_no, line)            ####
-####                -   Check command is a template file declaration.      ####
+####        _assert_blueprint(command, file_name, line_no, line)           ####
+####                -   Check command is a blueprint file declaration.     ####
 ####                                                                       ####
 ###############################################################################
 ###############################################################################
