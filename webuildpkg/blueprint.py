@@ -296,7 +296,7 @@ def _parse_blueprint_command(
         
         file_count = parse_blueprint(blufile, file_count=file_count)
     elif cmd and cmd[0] == shared.TEMPLATE_ID:          # Valid :TEMPLATE
-        temfile = open_template(cmd[1], path)
+        temfile = template.open_template(cmd[1], path)
         
         if cmd[2:] and cmd[2] != "":
             outfile = shared.open_output(cmd[2])
@@ -305,7 +305,7 @@ def _parse_blueprint_command(
             
             file_count += 1
         
-        parse_template(temfile, outfile)
+        template.parse_template(temfile, outfile)
     elif cmd and cmd[0] == shared.FRAGMENT_ID:          # Valid :FRAGMENT
         fragfile = fragment.open_fragment(cmd[1], path)
         
