@@ -147,10 +147,10 @@ command isn't otherwise needed. In the above example, the comment is:<br>
 
         Examples:      The file type declaration is a DECLARATION command which must appear as
                        the first (non-shebang) line of any web-build file. File type
-                       declarations are: ::BLUEPRINT;, ::TEMPLATE;, ::FRAGMENT and ::PARAMETRIC;.
-                       ::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT]]; is another example of a
-                       DECLARATION used in parametric files to declare the existance of a
-                       parameter.
+                       declarations are: ::BLUEPRINT;, ::TEMPLATE;, ::FRAGMENT and
+                       ::PARAMETRIC;. ::PARAM:PARAM_NAME[:[REQUIRED][:DEFAULT]]; is another
+                       example of a DECLARATION used in parametric files to declare the
+                       existance of a parameter.
 
     BLUEPRINT
         Syntax:        :BLUEPRINT:[path/to/]blueprint;
@@ -162,7 +162,7 @@ command isn't otherwise needed. In the above example, the comment is:<br>
                            Field_2    -    The name of the blueprint file to resolve and parse.
                            Field_3+   -    Unused.
 
-        Details:       All paths are relative to the location of the containing file unless
+        Details:       Input paths are relative to the location of the containing file unless
                        otherwise specified. To resolve the file name, the directory  pointed to
                        by path/to/ will be serched for a file with the given name and then the
                        same name with the extensions ".blueprint" and ".blue" will be checked in
@@ -174,7 +174,7 @@ command isn't otherwise needed. In the above example, the comment is:<br>
         Availability:  Blueprint.
         
     FRAGMENT
-        Syntax:        :FRAGMENT:NAME[:OUTPUT];
+        Syntax:        :FRAGMENT:[path/to/]fragment[:[path/to/]output];
 
         Function:      Import the named fragment file, parse it and substitute the output for
                        this line or output to the named output file.
@@ -186,19 +186,20 @@ command isn't otherwise needed. In the above example, the comment is:<br>
                                            (blueprint only).
                            Field_4+   -    Unused.
 
-        Details:       All paths are relative to the location of the containing file unless
+        Details:       Input paths are relative to the location of the containing file unless
                        otherwise specified. To resolve the file name, the directory  pointed to
                        by path/to/ will be serched for a file with the given name and then the
                        same name with the extensions ".fragment" and ".frag" will be checked in
                        that order. The first matching file will be the resolved fragment file -
                        even if it is not a fragment file and a fragment file exists at one of
                        the other locations. For this reason it is always safest to include the
-                       file extension in the command field.
+                       file extension in the command field. Output paths are relative to
+                       Python's working directory, directories will be created where required.
 
         Availability:  Blueprint, Template.
 
     PARAMETRIC
-        Syntax:        :PARAMETRIC:NAME[:[OUTPUT][:PARAM_1=val_1[:PARAM_2=val_2[...]]]];
+        Syntax:        :PARAMETRIC:[path/to/]parametric[:[[path/to/]output][:PARAM_1=val_1[:PARAM_2=val_2[...]]]];
 
         Function:      Import the named parametric file, parse it with the given parameters and
                        substitute the output for this line or output to the named output file.
@@ -211,19 +212,20 @@ command isn't otherwise needed. In the above example, the comment is:<br>
                            Field_4+   -    The parameter=value pairs used to parse this
                                            instance of the parametric file.
 
-        Details:       All paths are relative to the location of the containing file unless
+        Details:       Input paths are relative to the location of the containing file unless
                        otherwise specified. To resolve the file name, the directory  pointed to
                        by path/to/ will be serched for a file with the given name and then the
                        same name with the extensions ".parametric" and ".param" will be checked
                        in that order. The first matching file will be the resolved parametric
                        file - even if it is not a parametric file and a parametric file exists at
                        one of the other locations. For this reason it is always safest to include
-                       the file extension in the command field.
+                       the file extension in the command field. Output paths are relative to
+                       Python's working directory, directories will be created where required.
 
         Availability:  Blueprint, Template.
     
     TEMPLATE
-        Syntax:        :TEMPLATE:NAME[:OUTPUT];
+        Syntax:        :TEMPLATE:[path/to/]template[:[path/to/]output];
 
         Function:      Import the named template file, parse it and substitute the output for
                        this line or output to the named output file.
@@ -235,14 +237,15 @@ command isn't otherwise needed. In the above example, the comment is:<br>
                                            (blueprint only).
                            Field_4+   -    Unused.
 
-        Details:       All paths are relative to the location of the containing file unless
+        Details:       Input paths are relative to the location of the containing file unless
                        otherwise specified. To resolve the file name, the directory  pointed to
                        by path/to/ will be serched for a file with the given name and then the
                        same name with the extensions ".template" and ".temp" will be checked in
                        that order. The first matching file will be the resolved template file -
                        even if it is not a template file and a template file exists at one of
                        the other locations. For this reason it is always safest to include the
-                       file extension in the command field.
+                       file extension in the command field. Output paths are relative to
+                       Python's working directory, directories will be created where required.
 
         Availability:  Blueprint, Template.
 
