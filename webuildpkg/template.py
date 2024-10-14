@@ -286,11 +286,11 @@ def _parse_template_command(
     elif cmd and cmd[0] == "":                                  # Declaration
         raise shared.ParseError(
                 f"Template files may not contain declarations.",
-                (infile.name, line_no, 1, line.strip()))
+                (file_name, line_no, 1, line.strip()))
     elif cmd and cmd[0] in shared.FILE_IDS and not cmd[1:]:     # No Source
         raise shared.ParseError(
                 f"Bad :{cmd[0]} command, must specify source.",
-                (infile.name, line_no, 1, line.strip()))
+                (file_name, line_no, 1, line.strip()))
     elif cmd and cmd[0] == shared.TEMPLATE_ID:          # Valid :TEMPLATE
         temfile = open_template(cmd[1], path)
         
@@ -302,14 +302,14 @@ def _parse_template_command(
     elif cmd and cmd[0] == shared.PARAMETRIC_ID:        # Valid :PARAMETRIC
         parafile = parametric.open_parametric(cmd[1], path)
         
-        params = parametric.parse_parameters(cmd[2:])
+        params = parametric.parse_parameters(cmd[3:])
         
         parametric.parse_parametric(parafile, outfile, params)
     elif cmd:                                               # Other command
         raise shared.ParseError(f"Unrecognized command :{cmd[0]}.",
-                                (infile.name, line_no, 1, line.strip()))
+                                (file_name, line_no, 1, line.strip()))
     else:                                       # No command fields (somehow)
-        raise RuntimeError(f"  File \"{infile.name}\", line {line_no}\n"
+        raise RuntimeError(f"  File \"{file_name}\", line {line_no}\n"
                            f"    {line.strip()}\n"
                            f"  caused a zero-length command to parse.")
 
