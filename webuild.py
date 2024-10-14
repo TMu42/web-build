@@ -51,7 +51,9 @@ def main(args):
     
     file_type, line_no = webuildpkg.get_file_type(infile, outfile)
     
-    if file_type == webuildpkg.TEMPLATE_ID:
+    if file_type == webuildpkg.BLUEPRINT_ID:
+        webuildpkg.blueprint.parse_blueprint(infile, line_no)
+    elif file_type == webuildpkg.TEMPLATE_ID:
         webuildpkg.template.parse_template(infile, outfile, line_no)
     elif file_type == webuildpkg.FRAGMENT_ID:
         webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
@@ -61,13 +63,6 @@ def main(args):
         webuildpkg.parametric.parse_parametric(
                                             infile, outfile, params, line_no)
     else:
-        traceback.print_exception(shared.ParseError(
-                                    f"Invalid file declaration '{dec_line}', "
-                                    f"assuming fragment file.",
-                                    (file_name, line_no, 1, line.strip())))
-        
-        outfile.write(dec_line)
-        
         webuildpkg.fragment.parse_fragment(infile, outfile, line_no)
     
     return 0
