@@ -1,8 +1,8 @@
 #! /usr/bin/local/webuild
 ::BLUEPRINT;
 
-:TEMPLATE:fragment.template:fragment.html;
+:TEMPLATE:fragment.template:test_html/fragment.html;
 
-:TEMPLATE:parametric.template:parametric.html;
+:TEMPLATE:parametric.template:test_html/parametric.html;
 
-:TEMPLATE:template.template:template.html;
+:TEMPLATE:template.template:test_html/template.html;
