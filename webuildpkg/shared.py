@@ -32,6 +32,9 @@
 ####        get_file_type(infile, outfile)                                 ####
 ####                -   Get the file type of a web-build file.             ####
 ####                                                                       ####
+####        get_file_path(f)                                               ####
+####                -   Get the path to a file( name)'s parent dir.        ####
+####                                                                       ####
 ####        parse_shebang(infile)                                          ####
 ####                -   Get the first file line, ignoring a shebang.       ####
 ####                                                                       ####

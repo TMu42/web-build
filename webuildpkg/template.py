@@ -197,7 +197,8 @@ def parse_template(infile, outfile, line_no=0):
             outfile.write(line)
         else:
             _parse_template_command(
-                command, outfile, _path(infile), infile.name, line_no, line)
+                        command, outfile, shared.get_file_path(infile),
+                                                infile.name, line_no, line)
 
 
 ###############################################################################

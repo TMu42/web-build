@@ -193,7 +193,7 @@ def parse_blueprint(infile, line_no=0, file_count=0):
             pass
         else:
             file_count = _parse_blueprint_command(
-                                    command, _path(infile),
+                                    command, shared.get_file_path(infile),
                                     file_count, infile.name, line_no, line)
     
     return file_count
