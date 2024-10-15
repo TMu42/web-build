@@ -41,6 +41,7 @@
 ###############################################################################
 ###############################################################################
 import traceback
+import pathlib
 import sys
 
 
@@ -138,6 +139,8 @@ class ParameterError(SyntaxError): pass
 #                                                                             #
 ###############################################################################
 def open_output(name):
+    pathlib.Path(get_file_path(name)).mkdir(parents=True, exist_ok=True)
+    
     if name in STDOUTS:
         return sys.stdout
     
@@ -224,6 +227,42 @@ def get_file_type(infile, outfile=None):
         file_type = FRAGMENT_ID
     
     return file_type, line_no
+
+
+###############################################################################
+#                                                                             #
+#   Method:                                                                   #
+#       get_file_path(f)                                                      #
+#                                                                             #
+#   Parameters:                                                               #
+#       f       -   file/string:    a file (or file name) from which to       #
+#                                   extract the parent directory path,        #
+#                                   Required.                                 #
+#                                                                             #
+#   Returns:    string: the absolute or relative path to the file.            #
+#                                                                             #
+#   Raises:                                                                   #
+#       TypeError   -   when `f` is not a file, obviously.                    #
+#                                                                             #
+#   Description:                                                              #
+#       Extracts and returns the path component from the `name` property of   #
+#       a given file (or a provided file name if string), this may be a       #
+#       relative or absolute path depending on how the file was opened or     #
+#       the nature of the file name. Will always be "" if the file was        #
+#       opened directly from the local directory or is a numbered or named    #
+#       file stream not opened from the file system tree.                     #
+#                                                                             #
+###############################################################################
+def get_file_path(f):
+    try:
+        path = f.name
+    except AttributeError:  # f is not a file, try string
+        path = f
+    
+    try:
+        return '/'.join(path.split('/')[:-1])
+    except AttributeError:  # path is not a string
+        return ""
 
 
 ###############################################################################
