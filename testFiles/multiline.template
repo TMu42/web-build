@@ -1,0 +1,14 @@
+:\
+:\
+TEMP\
+LATE\
+;
+<!DOCTYPE html>
+
+<html>
+  :FRAGMENT\
+  :head-fragment;
+  
+  :FRAGMENT:body\
+                -fragment;
+</html>

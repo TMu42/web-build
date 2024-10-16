@@ -1,0 +1,13 @@
+::PARAMETRIC\
+:\
+:\
+:\
+:\
+;
+::PARAM:TITLE\
+       :\
+       :Parmetric \
+       HTML;
+  <head>
+    <title><[TITLE]></title>
+  </head>
