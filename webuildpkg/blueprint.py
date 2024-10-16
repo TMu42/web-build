@@ -181,20 +181,35 @@ def parse_blueprint(infile, line_no=0, file_count=0):
     if line_no == 0:
         line, line_no = shared.parse_shebang(infile)
         
-        _assert_blueprint(shared.parse_command(line, infile.name, line_no),
-                          infile.name, line_no, line)
+        command, done = shared.parse_command(line, infile.name, line_no)
+        
+        while not done:
+            line = infile.readline()
+            
+            line_no += 1
+            
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
+        
+        _assert_blueprint(command, infile.name, line_no, line)
+    
+    command = None
     
     while (line := infile.readline()):
         line_no += 1
         
         try:
-            command = shared.parse_command(line, infile.name, line_no)
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
         except shared.ParseError:
-            pass
+            command = None
         else:
-            file_count = _parse_blueprint_command(
+            if done:
+                file_count = _parse_blueprint_command(
                                     command, shared.get_file_path(infile),
                                     file_count, infile.name, line_no, line)
+                
+                command = None
     
     return file_count
 
