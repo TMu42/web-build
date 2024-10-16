@@ -209,6 +209,14 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
         
         command, done = shared.parse_command(line, infile.name, line_no)
         
+        while not done:
+            line = infile.readline()
+            
+            line_no += 1
+            
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
+        
         _assert_parametric(command, infile.name, line_no, line)
     
     command = None
