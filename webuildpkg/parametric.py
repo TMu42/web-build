@@ -207,15 +207,23 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
     if line_no == 0:
         line, line_no = shared.parse_shebang(infile)
         
-        _assert_parametric(shared.parse_command(line, infile.name, line_no),
-                           infile.name, line_no, line)
+        command, done = shared.parse_command(line, infile.name, line_no)
+        
+        _assert_parametric(command, infile.name, line_no, line)
+    
+    command = None
     
     while (line := infile.readline()):
         line_no += 1
         
         try:
-            _param(shared.parse_command(line, infile.name, line_no),
-                   params, infile.name, line_no, line) 
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
+            
+            if done:
+                _param(command, params, infile.name, line_no, line)
+                
+                command = None
         except shared.ParseError:
             outfile.write(
                 _parse_parametric_line(line, params, infile.name, line_no))

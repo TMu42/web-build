@@ -352,17 +352,14 @@ def parse_command(line, file_name="", line_no=0, base_command=None):
     for c in line.split('\n')[0]:
         if escape or semicolon:
             command[-1] += c
-            
             escape = False
         elif c == '\\':
             escape = True
         elif c == ':':
             colon = True
-            
             command += [""]
         elif c == ';':
             semicolon = True
-            
             command += [""]
         else:
             command[-1] += c
