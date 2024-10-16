@@ -185,20 +185,37 @@ def parse_template(infile, outfile, line_no=0):
     if line_no == 0:
         line, line_no = shared.parse_shebang(infile)
         
-        _assert_template(shared.parse_command(line, infile.name, line_no),
-                         infile.name, line_no, line)
+        command, done = shared.parse_command(line, infile.name, line_no)
+        
+        while not done:
+            line = infile.readline()
+            
+            line_no += 1
+            
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
+        
+        _assert_template(command, infile.name, line_no, line)
+    
+    command = None
     
     while (line := infile.readline()):
         line_no += 1
         
         try:
-            command = shared.parse_command(line, infile.name, line_no)
+            command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
         except shared.ParseError:
             outfile.write(line)
+            
+            command = None
         else:
-            _parse_template_command(
+            if done:
+                _parse_template_command(
                         command, outfile, shared.get_file_path(infile),
                                                 infile.name, line_no, line)
+                
+                command = None
 
 
 ###############################################################################

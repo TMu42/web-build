@@ -235,8 +235,12 @@ def parse_parametric(infile, outfile, params={}, line_no=0):
         except shared.ParseError:
             outfile.write(
                 _parse_parametric_line(line, params, infile.name, line_no))
+            
+            command = None
         except ValueError as e:
             traceback.print_exception(e)
+            
+            command = None
 
 
 ###############################################################################
