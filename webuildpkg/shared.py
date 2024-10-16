@@ -333,12 +333,15 @@ def parse_shebang(infile):
 #       truncate them.                                                        #
 #                                                                             #
 ###############################################################################
-def parse_command(line, file_name="", line_no=0):
-    command = [""]
+def parse_command(line, file_name="", line_no=0, base_command=None):
+    if base_command is not None:
+        command, line, colon = base_command, line.lstrip(), True
+    else:
+        command, colon = [""], False
     
-    colon, semicolon, escape = False, False, False
+    semicolon, escape = False, False
     
-    for c in line:
+    for c in line.split('\n')[0]:
         if escape or semicolon:
             command[-1] += c
             
@@ -359,15 +362,16 @@ def parse_command(line, file_name="", line_no=0):
     if not colon:
         raise ParseError(f"Command initiator ':' missing.",
                          (file_name, line_no, 1, line.strip()))
-    elif command[0].strip() or (line + '\\').index('\\') < line.index(':'):
+    elif base_command is None \
+    and (command[0].strip() or (line + '\\').index('\\') < line.index(':')):
         raise ParseError(
                 f"Non whitespace character preceeding command initiator ':'.",
                 (file_name, line_no, line.strip().index(':'), line.strip()))
-    elif not semicolon:
+    elif (not semicolon) and (not escape):
         raise ParseError(f"Command terminator ';' missing.",
                          (file_name, line_no, len(line.strip()), line.strip()))
     
-    return command
+    return command, not escape
 
 
 ###############################################################################
