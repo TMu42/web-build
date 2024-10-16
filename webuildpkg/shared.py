@@ -38,7 +38,7 @@
 ####        parse_shebang(infile)                                          ####
 ####                -   Get the first file line, ignoring a shebang.       ####
 ####                                                                       ####
-####        parse_command(line, file_name, line_no)                        ####
+####        parse_command(line, file_name, line_no, base_command)          ####
 ####                -   Convert a file line into a canonical command.      ####
 ####                                                                       ####
 ###############################################################################
@@ -300,21 +300,29 @@ def parse_shebang(infile):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       parse_command(line, file_name="", line_no=0)                          #
+#       parse_command(line, file_name="", line_no=0, base_command=None)       #
 #                                                                             #
 #   Parameters:                                                               #
-#       line        -   string: the line containing the command to parse,     #
-#                               required.                                     #
+#       line            -   string: the line containing the command to        #
+#                                   parse, required.                          #
 #                                                                             #
-#       file_name   -   string: the name of the file, only used for error     #
-#                               messages so may safely be omitted if this     #
-#                               is not required, default="".                  #
+#       file_name       -   string: the name of the file, only used for       #
+#                                   error messages so may safely be           #
+#                                   omitted if this is not required,          #
+#                                   default="".                               #
 #                                                                             #
-#       line_no     -   int:    the line number from the file, only used      #
-#                               error messages so may safely be omitted if    #
-#                               this is not required, default=0.              #
+#       line_no         -   int:    the line number from the file, only       #
+#                                   used error messages so may safely be      #
+#                                   omitted if this is not required,          #
+#                                   default=0.                                #
+#                                                                             #
+#       base_command    -   list:   if continuing command parsing over a      #
+#                                   line break, the command as parsed thus    #
+#                                   far, default=None.                        #
 #                                                                             #
 #   Returns:    list:   a list of the command fields as strings.              #
+#               bool:   is the command complete or does the next line need    #
+#                       parsing as part of the same command.                  #
 #                                                                             #
 #   Raises:                                                                   #
 #       ParseError  -   when `line` is not a properly formed command.         #
