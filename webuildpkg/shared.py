@@ -210,9 +210,16 @@ def get_file_type(infile, outfile=None):
     line, line_no = parse_shebang(infile)
     
     try:
-        file_dec = parse_command(line, infile.name, line_no)
+        command, done = parse_command(line, infile.name, line_no)
         
-        file_type = file_dec[2]
+        while not done:
+            line = infile.readline()
+            
+            line_no += 1
+            
+            command, done = parse_command(line, infile.name, line_no, command)
+        
+        file_type = command[2]
     except (ParseError, IndexError) as e:
         valid = False
     else:
