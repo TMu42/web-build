@@ -342,7 +342,7 @@ def _parse_blueprint_command(
             
             file_count += 1
         
-        params = parametric.parse_parameters(cmd[3:])
+        params = parametric.parse_parameters(cmd[3:], file_name, line_no, line)
         
         parametric.parse_parametric(parafile, outfile, params)
     elif cmd:                                               # Other command
