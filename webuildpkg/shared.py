@@ -38,7 +38,7 @@
 ####        parse_shebang(infile)                                          ####
 ####                -   Get the first file line, ignoring a shebang.       ####
 ####                                                                       ####
-####        parse_command(line, file_name, line_no)                        ####
+####        parse_command(line, file_name, line_no, base_command)          ####
 ####                -   Convert a file line into a canonical command.      ####
 ####                                                                       ####
 ###############################################################################
@@ -210,9 +210,16 @@ def get_file_type(infile, outfile=None):
     line, line_no = parse_shebang(infile)
     
     try:
-        file_dec = parse_command(line, infile.name, line_no)
+        command, done = parse_command(line, infile.name, line_no)
         
-        file_type = file_dec[2]
+        while not done:
+            line = infile.readline()
+            
+            line_no += 1
+            
+            command, done = parse_command(line, infile.name, line_no, command)
+        
+        file_type = command[2]
     except (ParseError, IndexError) as e:
         valid = False
     else:
@@ -300,21 +307,29 @@ def parse_shebang(infile):
 ###############################################################################
 #                                                                             #
 #   Method:                                                                   #
-#       parse_command(line, file_name="", line_no=0)                          #
+#       parse_command(line, file_name="", line_no=0, base_command=None)       #
 #                                                                             #
 #   Parameters:                                                               #
-#       line        -   string: the line containing the command to parse,     #
-#                               required.                                     #
+#       line            -   string: the line containing the command to        #
+#                                   parse, required.                          #
 #                                                                             #
-#       file_name   -   string: the name of the file, only used for error     #
-#                               messages so may safely be omitted if this     #
-#                               is not required, default="".                  #
+#       file_name       -   string: the name of the file, only used for       #
+#                                   error messages so may safely be           #
+#                                   omitted if this is not required,          #
+#                                   default="".                               #
 #                                                                             #
-#       line_no     -   int:    the line number from the file, only used      #
-#                               error messages so may safely be omitted if    #
-#                               this is not required, default=0.              #
+#       line_no         -   int:    the line number from the file, only       #
+#                                   used error messages so may safely be      #
+#                                   omitted if this is not required,          #
+#                                   default=0.                                #
+#                                                                             #
+#       base_command    -   list:   if continuing command parsing over a      #
+#                                   line break, the command as parsed thus    #
+#                                   far, default=None.                        #
 #                                                                             #
 #   Returns:    list:   a list of the command fields as strings.              #
+#               bool:   is the command complete or does the next line need    #
+#                       parsing as part of the same command.                  #
 #                                                                             #
 #   Raises:                                                                   #
 #       ParseError  -   when `line` is not a properly formed command.         #
@@ -333,25 +348,25 @@ def parse_shebang(infile):
 #       truncate them.                                                        #
 #                                                                             #
 ###############################################################################
-def parse_command(line, file_name="", line_no=0):
-    command = [""]
+def parse_command(line, file_name="", line_no=0, base_command=None):
+    if base_command is not None:
+        command, line, colon = base_command, line.lstrip(), True
+    else:
+        command, colon = [""], False
     
-    colon, semicolon, escape = False, False, False
+    semicolon, escape = False, False
     
-    for c in line:
+    for c in line.split('\n')[0]:
         if escape or semicolon:
             command[-1] += c
-            
             escape = False
         elif c == '\\':
             escape = True
         elif c == ':':
             colon = True
-            
             command += [""]
         elif c == ';':
             semicolon = True
-            
             command += [""]
         else:
             command[-1] += c
@@ -359,15 +374,16 @@ def parse_command(line, file_name="", line_no=0):
     if not colon:
         raise ParseError(f"Command initiator ':' missing.",
                          (file_name, line_no, 1, line.strip()))
-    elif command[0].strip() or (line + '\\').index('\\') < line.index(':'):
+    elif base_command is None \
+    and (command[0].strip() or (line + '\\').index('\\') < line.index(':')):
         raise ParseError(
                 f"Non whitespace character preceeding command initiator ':'.",
                 (file_name, line_no, line.strip().index(':'), line.strip()))
-    elif not semicolon:
+    elif (not semicolon) and (not escape):
         raise ParseError(f"Command terminator ';' missing.",
                          (file_name, line_no, len(line.strip()), line.strip()))
     
-    return command
+    return command, not escape
 
 
 ###############################################################################

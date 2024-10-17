@@ -1,0 +1,19 @@
+#! /usr/bin/local/webuild
+:\
+:\
+BLU\
+EPR\
+INT\
+;
+
+:TEMPLATE\
+    :fragment.template\
+    :test_html/fragment.html;
+
+:TEMPLATE\
+    :parametric.template\
+    :test_html/parametric.html;
+
+:TEMPLATE\
+    :template.template\
+    :test_html/template.html;

@@ -174,8 +174,17 @@ def parse_fragment(infile, outfile, line_no=0):
         line, line_no = shared.parse_shebang(infile)
         
         try:
-            _assert_fragment(shared.parse_command(line, infile.name, line_no),
-                             infile.name, line_no, line)
+            command, done = shared.parse_command(line, infile.name, line_no)
+            
+            while not done:
+                line = infile.readline()
+                
+                line_no += 1
+                
+                command, done = shared.parse_command(
+                                        line, infile.name, line_no, command)
+            
+            _assert_fragment(command, infile.name, line_no, line)
         except shared.ParseError as e:
             traceback.print_exception(e)
             
