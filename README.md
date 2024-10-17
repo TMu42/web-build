@@ -87,12 +87,11 @@ the list of valid commands varies by file type and context.
 
 ### Anatomy of a command
 
-Each command must be on a single line and must occupy the whole line. Every
-line in a file must either be a single command OR file text. A line may not
-contain a combination of command and file text. A line may not contain more
-than one command. A line is a command if and only if its first non-whitespace
-character is `:`. A valid command must also contain an unescaped `;` as a
-terminator.
+Every line in a file must either be a single command (or part of one) OR file
+text. A line may not contain a combination of command and file text. A line may
+not contain more than one command (or parts of more than one command). A line
+is the beginning of a command if and only if its first non-whitespace character
+is `:`. A valid command must also contain an unescaped `;` as a terminator.
 
 `    :THIS:IS:A:COMMAND; with an optional comment.`
 
@@ -120,6 +119,40 @@ and may be used to provide annotation to any file which is allowed to contain
 commands. A special "empty" command `:;` may be used to add a comment where a
 command isn't otherwise needed. In the above example, the comment is:<br>
 `" with an optional comment."`.
+
+### Multi-line commands
+
+A command may span more than one line if needed. To enable multi-line commands,
+the escape character `\` must be used to escape the new line; this is similar
+to Python's line continuation syntax. When a command spans two or more lines,
+the newline at the end of each line is ignored. Any indent on subsequent lines
+is also ignored. Note that a comment may only appear on the last line of any
+command as it must follow the terminator `;` and line continuation is not
+available after the terminator `;`. Thus the following should all be treated as
+equivalent by the interpreter:
+
+    >    :THIS:IS:A:COMMAND; with a comment.
+
+    >    :THIS:IS:A:COMMAND\
+                           ; with a comment.
+
+    >    :THIS\
+         :IS\
+         :A\
+         :COMMAND; with a comment.
+
+    >    :THIS:IS\
+              :A\
+              :COMMAND; with a comment.
+
+    >    :TH\
+          IS\
+         :IS\
+         :A:\
+          CO\
+          MM\
+          AN\
+          D; with a comment.`
 
 ### Command directory
 
@@ -255,14 +288,18 @@ Sometimes a file needs to include characters which would normally have special
 meanings or effects, without invoking these effects. As such, web-build defines
 a universal escape character `'\'`. Wherever this character is encountered in
 a web-build file (except in a fragment file), it has the special effect of
-negating any special effect of the next character (if any). The escape
+negating the special effect of the next character (if any). The escape
 character produces no output itself however if this character is needed in the
 output, it can itself be escaped, i.e. `\\` -> `\`. This behaviour forms part
 of the universal file syntax, available in the file text of any web-buid file
 (except fragment files) but can also be used within commands with the same
 effect. The escape character can be leveraged to include a `':'` or `';'` in a
 command field or even to escape the special meaning of characters within a
-field (such as `'='` in a `:PARAMETRIC;` command).
+field (such as `'='` in a `:PARAMETRIC;` command). The other use of the escape
+character is to break a command over multiple lines. If the last character on a
+command line is an unescaped escape character and the command terminator `;`
+has not been encountered, it has the effect of continuing the command from the
+first non-whitespace character on the next line.
 
 ## Blueprint File Syntax
 
