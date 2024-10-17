@@ -286,30 +286,20 @@ def parse_parameters(args, file_name="argv", line_no=0, line=None):
     for arg in args:
         escape = False
         
-#        idx = 0
-        
         name_val = [""]
         
         for c in arg:
             if escape:
-#                name_val[idx] += c
                 name_val[-1] += c
-                
-                sys.stderr.write(f"escaped: '{c}'\n")
-                sys.stderr.flush()
                 
                 escape = False
             elif c == '\\':
                 escape = True
             elif c == '=':
-#                idx += 1
-                
                 name_val += [""]
             else:
-#                name_val[idx] += c
                 name_val[-1] += c
         
-#        if idx == 1:
         if len(name_val) == 2:
             params[name_val[0]] = name_val[1]
         else:
