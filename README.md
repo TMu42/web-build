@@ -254,6 +254,11 @@ equivalent by the interpreter:
                        one of the other locations. For this reason it is always safest to include
                        the file extension in the command field. Output paths are relative to
                        Python's working directory, directories will be created where required.
+                       Parameter fields (Fields_4+) are parsed a second time so any escape
+                       characters must themselves be escaped to survive the first parser.
+                       Therefore, to escape an '=' you will need to write "\\=" in the command.
+                       To include a literal '\' in a parameter name or value (don't do this in a
+                       name, please!) you will need to write "\\\\".
 
         Availability:  Blueprint, Template.
     
@@ -293,13 +298,22 @@ character produces no output itself however if this character is needed in the
 output, it can itself be escaped, i.e. `\\` -> `\`. This behaviour forms part
 of the universal file syntax, available in the file text of any web-buid file
 (except fragment files) but can also be used within commands with the same
-effect. The escape character can be leveraged to include a `':'` or `';'` in a
+effect.
+
+The escape character can be leveraged to include a `':'` or `';'` in a
 command field or even to escape the special meaning of characters within a
-field (such as `'='` in a `:PARAMETRIC;` command). The other use of the escape
-character is to break a command over multiple lines. If the last character on a
-command line is an unescaped escape character and the command terminator `;`
-has not been encountered, it has the effect of continuing the command from the
-first non-whitespace character on the next line.
+field (such as `'='` in a `:PARAMETRIC;` command). Note that where special
+characters are parsed within the fields of a command, they pass through two
+rounds of parsing, once to parse the command and once to parse the fields. As
+such, it is necessary to nest two layers of escapes as the first layer will be
+stripped by the command parser. Each command which requires this is documented
+explicitly.
+
+The other use of the escape character is to break a command over multiple
+lines. If the last character on a command line is an unescaped escape
+character and the command terminator `;` has not been encountered, it has the
+effect of continuing the command from the first non-whitespace character on
+the next line.
 
 ## Blueprint File Syntax
 

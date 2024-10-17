@@ -320,7 +320,7 @@ def _parse_template_command(
     elif cmd and cmd[0] == shared.PARAMETRIC_ID:        # Valid :PARAMETRIC
         parafile = parametric.open_parametric(cmd[1], path)
         
-        params = parametric.parse_parameters(cmd[3:])
+        params = parametric.parse_parameters(cmd[3:], file_name, line_no, line)
         
         parametric.parse_parametric(parafile, outfile, params)
     elif cmd:                                               # Other command
