@@ -3,9 +3,11 @@
 ## Usage
 
     python webuild.py [INPUT_FILE [OUTPUT_FILE]]
+
 OR:
 
     ./webuild.py [INPUT_FILE [OUTPUT_FILE]]
+
 OR when installed:
 
     webuild [INPUT_FILE [OUTPUT_FILE]]
