@@ -337,7 +337,7 @@ should be a command, one of `:BLUEPRINT:name;`,
 file will be selected.
 
 It is recommended that blueprint files use the file extension ".blueprint" or
-".blue" however this is not mandated. A consitant style for file extensions
+".blue" however this is not mandated. A consitent style for file extensions
 should be used within a project.
 
 As a general rule, blueprints should only invoke templates and other
@@ -368,7 +368,7 @@ of `:TEMPLATE:name;`, `:FRAGMENT:name;` or
 `:PARAMETRIC:name[::param_1=val_1[:param_2=val_2[...]]];`.
 
 It is recomended that template files use the file extension ".template" or
-".temp" however this is not mandated. A consitant style for file extensions
+".temp" however this is not mandated. A consitent style for file extensions
 should be used within a project.
 
 ## Fragment File Syntax
@@ -388,7 +388,7 @@ given that the output will merely be identity — is your business.
 Nevertheless, this functionality has been provided for completeness.
 
 It is recomended that fragment files use the file extension ".fragment" or
-".frag" however this is not mandated. A consitant style for file extensions
+".frag" however this is not mandated. A consitent style for file extensions
 should be used within a project.
 
 ## Parametric File Syntax
